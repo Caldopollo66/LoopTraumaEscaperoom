@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
 
-  <!-- A-Frame (compatible con físicas) -->
+  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 
   <!-- Physics -->
@@ -16,15 +16,19 @@
 
   <!-- ASSETS -->
   <a-assets>
-    <img id="Limbo" src="IMG/Limbo.png">
-    <img id="Grass" src="IMG/Grass.png">
-    <a-asset-item id="gabriel" src="IMG/gabriel.glb"></a-asset-item>
+    <!-- Cielo -->
+    <img id="noche" src="IMG/noche.jpeg">
+
+    <!-- Textura suelo -->
+    <img id="grass" src="IMG/grass.jpg">
+
+    <!-- Modelos GLTF -->
     <a-asset-item id="angel" src="IMG/angel.glb"></a-asset-item>
-    <a-asset-item id="haven" src="IMG/haven.glb"></a-asset-item>
+    <a-asset-item id="gabriel" src="IMG/gabriel.glb"></a-asset-item>
   </a-assets>
 
   <!-- LUCES -->
-  <a-light type="ambient" intensity="1"></a-light>
+  <a-light type="ambient" intensity="0.6"></a-light>
   <a-light type="directional" position="5 10 5" intensity="1"></a-light>
 
   <!-- JUGADOR -->
@@ -38,7 +42,7 @@
   </a-entity>
 
   <!-- CIELO -->
-  <a-sky src="#Limbo"></a-sky>
+  <a-sky src="#noche"></a-sky>
 
   <!-- SUELO -->
   <a-plane
@@ -46,23 +50,9 @@
     rotation="-90 0 0"
     width="100"
     height="100"
-    material="src: #Grass; repeat: 50 50"
+    material="src: #grass; repeat: 50 50"
     static-body>
   </a-plane>
-
-  <!-- MODELOS -->
-  <a-entity
-    gltf-model="#angel"
-    position="5 0 -8"
-    scale="10 10 10">
-  </a-entity>
-
-  <a-entity
-    gltf-model="#gabriel"
-    position="-5 0 -8"
-    scale="1 1 1">
-  </a-entity>
-
 </a-scene>
 
 </body>
