@@ -1,0 +1,64 @@
+<html>
+  <head>
+  <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+  </head>
+  <body>
+  <a-scene cursor="rayOrigin: mouse">
+        <a-assets>
+         <img id="cj" src="assets/cj.jpg" />
+         <img id="obama" src="assets/obama.jpg" />
+         <img id="windows" src="assets/windows.jpg" />
+         <img id="pedro" src="assets/pedro.jpg" />
+         <img id="white" src="assets/white.jpg" />
+         <img id="saul" src="assets/saul.jpg" />
+         <img id="jesi" src="assets/jessy.jpg" />
+         <img id="hit" src="assets/hit.jpg" />
+         <img id="hank" src="assets/hank.jpg" /> 
+        <a-asset-item id="job" src="assets/job.glb"></a-asset-item>
+        </a-assets>
+        <a-sky src="#windows"></a-sky>
+         <a-sphere  position="-2 1.25 -5" radius="1.25" rotation="0 0 0" color="" material="src: #cj" animation="property: rotation; to: 0 360 0; dur: 400; loop: true"></a-sphere>
+         <a-box position="3 1.25 -5" radius="1.25" rotation="0 0 0" color="" material="src: #obama"  animation="property: rotation; to: 0 360 0; dur: 400; loop: true"></a-box>
+         <a-box position="1 1.25 -5" radius="1.25" rotation="0 0 0" color="" material="src: #jesi"  animation="property: rotation; to: 0 360 0; dur: 300; loop: true"></a-box>
+         <a-box position="-10 5s -5" height="5.25" width="5" rotation="0 0 0" color="" material="src: #hank"  animation="property: rotation; to: 0 180 0; dur: 3000; loop: true"></a-box>
+         <a-cylinder position="1 1.50 10"radius="2.50" height="10" material="src: #pedro" animation="property: rotation; to: 0 360 0; dur: 1000; loop: true"></a-cylinder>
+         <a-cylinder position="0 200 10"radius="10" height="2" material="src: #hit"></a-cylinder>
+         <a-plane position="0 -200 0" rotation="-90 0 0" width="100" height="100"material="src: #hit;"></a-plane>
+         <a-plane position="0 -2 0" rotation="-90 0 0" width="200" height="100"material="src: #white; repeat: 0"></a-plane>
+         <a-plane position="0 -2 0" rotation="-90 0 0" width="200" height="100"material="src: #white; repeat: 20 20"></a-plane>
+         <a-dodecahedron id="esmou" position="8 2 -6" rotation="0 0 0" radius="3" material="src: #saul"></a-dodecahedron>
+          <a-entity gltf-model="url(assets/job.glb)" position="0 1 -6" scale="10 10 10"></a-entity>
+        <script>
+  let unobjecte = document.querySelector("#esmou");
+
+  let active = false;
+
+  unobjecte.addEventListener("click", () => {
+
+    if (active) return;
+    active = true;
+
+    // Movimiento adelante y atrás
+    unobjecte.setAttribute("animation__move", {
+      property: "position",
+      to: "-2 1.25 -20",
+      dur: 500,
+      dir: "alternate",
+      loop: true,
+      easing: "easeInOutSine"
+    });
+
+    // Rotación continua
+    unobjecte.setAttribute("animation__rotate", {
+      property: "rotation",
+      to: "0 360 0",
+      dur: 500,
+      loop: true,
+      easing: "linear"
+    });
+
+  });
+</script>
+        </a-scene>
+  </body>
+</html>
