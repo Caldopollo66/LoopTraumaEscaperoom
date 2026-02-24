@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
 
-  <!-- A-Frame alex -->
+  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 
   <!-- Physics -->
@@ -19,8 +19,8 @@
     <!-- Cielo -->
     <img id="noche" src="IMG/noche.jpeg">
 
-    <!-- Textura suelo -->
-    <img id="" src="">
+    <!-- Modelo carretera -->
+    <a-asset-item id="carreteraModel" src="models/carretera.glb"></a-asset-item>
   </a-assets>
 
   <!-- LUCES -->
@@ -39,6 +39,15 @@
 
   <!-- CIELO -->
   <a-sky src="#noche"></a-sky>
+
+  <!-- MODELO CARRETERA -->
+  <a-entity 
+    gltf-model="#carreteraModel"
+    position="0 0 0"
+    scale="1 1 1"
+    static-body>
+  </a-entity>
+
 </a-scene>
 
 </body>
