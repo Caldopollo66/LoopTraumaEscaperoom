@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>LoopTrauma - Menu</title>
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+</head>
+
+<a-assets>
+  <img id="jef" src="IMG/aa.png">
+</a-assets>
+
+<body>
+  <a-scene>
+
+    <!-- Sky con imagen noche.jpg -->
+    <a-sky src="IMG/noche.jpg"></a-sky>
+
+    <!-- Cámara libre -->
+    <a-entity 
+      camera 
+      position="0 1.6 3"
+      look-controls="pointerLockEnabled: true"
+      wasd-controls="acceleration: 50">
+
+      <a-cursor color="#FFFFFF"></a-cursor>
+
+    </a-entity>
+
+    <!-- Título delante -->
+    <a-text 
+      value="LoopTrauma\nNow is personal"
+      position="0 3 -4"
+      align="center"
+      color="#FF0000"
+      width="10">
+    </a-text>
+
+    <!-- Botón -->
+    <a-text 
+      id="startButton"
+      value="Comença el joc"
+      position="0 1.5 -4"
+      align="center"
+      color="#FFFFFF"
+      width="8">
+    </a-text>
+
+    <!-- Plano detrás del jugador -->
+    <a-plane 
+      src="#jef"
+      position="0 1.6 6"
+      rotation="0 180 0"
+      width="3"
+      height="2"
+      side="double">
+    </a-plane>
+
+  </a-scene>
+
+  <script>
+    document.querySelector('#startButton').addEventListener('click', function () {
+      window.location.href = "index.html";
+    });
+  </script>
+
+</body>
+</html>
