@@ -18,7 +18,7 @@
   <a-assets>
     <img id="noche" src="IMG/noche.jpeg">
     <a-asset-item id="carreteraModel" src="modelos/mountain_road_scene.glb"></a-asset-item>
-    <a-asset-item id="CotxeModel" src="modelos/coxe.glb"> </a-asset-item>
+    <a-asset-item id="Cotxe" src="modelos/coxe.glb"> </a-asset-item>
   </a-assets>
 
   <!-- JUGADOR MÁS PEQUEÑO Y MÁS LENTO -->
@@ -26,7 +26,7 @@
     id="jugador" camera
     universal-controls
     kinematic-body
-    position="-23 -50 -49.100">
+    position="-23 0 -49.100">
     </a-entity>
 
     <a-camera position="0 0 0" look-controls></a-camera>
@@ -36,16 +36,22 @@
 
   <!-- CIELO -->
   <a-sky src="#noche"></a-sky>
+  <a-entity
+    gltf-model="#Cotxe"
+    position="3.50 1.438 6.110"
+    scale="0.07 0.07 0.07"
+    rotation="0 210 0"
+    static-body
+    animation="property: position; to: 0.482 1.438 0.713; dur: 10000; easing: linear;">
+  </a-entity> 
 
   <!-- CARRETERA MÁS GRANDE -->
   <a-entity 
     gltf-model="#carreteraModel"
-    position="24 -67.400 53"
+    position="24 -67.100 53"
     scale="20 20 20"
     static-body>
   </a-entity>
-
 </a-scene>
-
 </body>
 </html>
