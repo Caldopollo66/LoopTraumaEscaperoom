@@ -12,7 +12,7 @@
 
 <body>
 
-<a-scene physics="gravity: -9.8; debug: false">
+<a-scene physics="debug: false">
 
   <!-- ASSETS -->
   <a-assets>
@@ -24,8 +24,7 @@
   <a-light type="ambient" intensity="0.6"></a-light>
   <a-light type="directional" position="5 10 5" intensity="1"></a-light>
 
-  <!-- JUGADOR -->
-  <!-- Empieza arriba para que caiga correctamente -->
+  <!-- JUGADOR MÁS PEQUEÑO Y MÁS LENTO -->
   <a-entity
     id="player"
     position="-22 9 -50"
@@ -34,18 +33,18 @@
 
     <a-camera position="0 0 0" look-controls></a-camera>
 
+    <a-camera look-controls></a-camera>
   </a-entity>
 
   <!-- CIELO -->
   <a-sky src="#noche"></a-sky>
 
-  <!-- CARRETERA -->
-  <!-- Bajada bastante porque está escalada -->
+  <!-- CARRETERA MÁS GRANDE -->
   <a-entity 
     gltf-model="#carreteraModel"
-    position="0 -60 0"
+    position="0 0 0"
     scale="20 20 20"
-    static-body="shape: mesh">
+    static-body>
   </a-entity>
 
 </a-scene>
