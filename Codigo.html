@@ -18,11 +18,8 @@
   <a-assets>
     <img id="noche" src="IMG/noche.jpeg">
     <a-asset-item id="carreteraModel" src="modelos/mountain_road_scene.glb"></a-asset-item>
+    <a-asset-item id="CotxeModel" src="modelos/coxe.glb"> </a-asset-item>
   </a-assets>
-
-  <!-- LUCES -->
-  <a-light type="ambient" intensity="0.6"></a-light>
-  <a-light type="directional" position="5 10 5" intensity="1"></a-light>
 
   <!-- JUGADOR MÁS PEQUEÑO Y MÁS LENTO -->
   <a-entity
@@ -31,7 +28,6 @@
     scale="0.7 0.7 0.7"
     movement-controls="speed: 2"
     dynamic-body="mass: 1">
-
     <a-camera look-controls></a-camera>
   </a-entity>
 
