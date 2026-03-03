@@ -9,7 +9,19 @@
   <!-- Physics -->
   <<script src="https://cdn.rawgit.com/donmccurdy/aframe-extras/v3.8.6/dist/aframe-extras.min.js"></script>
 </head>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
 
+    const nextLevelObjects = document.querySelectorAll('.next-level');
+
+    nextLevelObjects.forEach(object => {
+      object.addEventListener('click', () => {
+        window.location.href = "intro.html";
+      });
+    });
+
+  });
+</script>
 <body>
 
 <a-scene physics="debug: false">
