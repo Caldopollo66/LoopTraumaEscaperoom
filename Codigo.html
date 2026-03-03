@@ -20,6 +20,8 @@
     <a-asset-item id="carreteraModel" src="modelos/mountain_road_scene.glb"></a-asset-item>
     <a-asset-item id="Cotxe" src="modelos/coxe.glb"> </a-asset-item>
     <a-asset-item id="alcol" src="modelos/alcol.glb"> </a-asset-item>
+    <a-asset-item id="jagger" src="modelos/jagger.glb"> </a-asset-item>
+    <a-asset-item id="rope" src="modelos/rope.glb"> </a-asset-item>
   </a-assets>
 
   <!-- JUGADOR MÁS PEQUEÑO Y MÁS LENTO -->
@@ -60,6 +62,20 @@
     scale="0.005 0.005 0.005"
     static-body>
   </a-entity>
+  <!-- Jägermeister-->
+<a-entity>
+    gltf-model="#jagger"
+    position="-0.960 1.448 -1.013"
+    scale="0.095 0.095 0.095"
+    static-body
+</a-entity> 
+
+<a-entity
+    gltf-model="#rope"
+    position="-0.375 2.132 2.527"
+    scale="0.005 0.005 0.005"
+    static-body>
+</a-entity>
 </a-scene>
 </body>
 </html>
