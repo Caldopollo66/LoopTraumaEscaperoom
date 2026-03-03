@@ -13,6 +13,7 @@
   <a-assets>
     <img id="lolbanana" src="IMG/banana.png">
     <a-asset-item id="modeloBoton" src="modelos/boton.glb"></a-asset-item>
+    <a-asset-item id="londo" src="modelos/anor_londo.glb"></a-asset-item>
   </a-assets>
 
   <!-- ================= JUGADOR ================= -->
@@ -21,18 +22,7 @@
       <a-cursor color="red"></a-cursor>
     </a-camera>
   </a-entity>
-
-  <!-- ================= CAJA ================= -->
-
-  <!-- Suelo gris -->
-  <a-plane rotation="-90 0 0" width="30" height="30" color="#AAAAAA"></a-plane>
-
-  <!-- Paredes grises -->
-  <a-plane position="0 3 -15" width="30" height="6" color="#AAAAAA"></a-plane>
-  <a-plane position="0 3 15" rotation="0 180 0" width="30" height="6" color="#AAAAAA"></a-plane>
-  <a-plane position="-15 3 0" rotation="0 90 0" width="30" height="6" color="#AAAAAA"></a-plane>
-  <a-plane position="15 3 0" rotation="0 -90 0" width="30" height="6" color="#AAAAAA"></a-plane>
-
+ 
   <!-- ================= PIZARRA ================= -->
 
   <a-plane id="panel"
@@ -72,7 +62,13 @@
   </a-entity>
 
   <a-light type="ambient" intensity="1.2"></a-light>
-
+  <!--==================Anorlondo============== -->
+  <a-entity 
+      gltf-model="#londo"
+            position="0 -4 -5"
+            rotation="0 90 0"
+            scale="10 10 10">
+          </a-entity>
   <!-- ================= SCRIPT ================= -->
 
  <script>
