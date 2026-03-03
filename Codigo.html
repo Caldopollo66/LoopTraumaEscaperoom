@@ -19,6 +19,7 @@
     <img id="noche" src="IMG/noche.jpeg">
     <a-asset-item id="carreteraModel" src="modelos/mountain_road_scene.glb"></a-asset-item>
     <a-asset-item id="Cotxe" src="modelos/coxe.glb"> </a-asset-item>
+    <a-asset-item id="alcol" src="modelos/alcol.glb"> </a-asset-item>
   </a-assets>
 
   <!-- JUGADOR MÁS PEQUEÑO Y MÁS LENTO -->
@@ -50,6 +51,13 @@
     gltf-model="#carreteraModel"
     position="24 -67.100 53"
     scale="20 20 20"
+    static-body>
+  </a-entity> 
+  <!-- Botellas alchol-->
+  <a-entity 
+    gltf-model="#alcol"
+    position="-0.960 1.448 -1.013"
+    scale="0.005 0.005 0.005"
     static-body>
   </a-entity>
 </a-scene>
