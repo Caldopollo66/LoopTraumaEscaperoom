@@ -1,107 +1,137 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>Sala Experimental</title>
-  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+<meta charset="utf-8">
+<title>Sala Experimental</title>
+<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 </head>
+
 <body>
 
 <a-scene background="color: #FFFFFF">
 
-  <!-- ================= CARGA DE RECURSOS ================= -->
-  <a-assets>
-    <img id="lolbanana" src="IMG/banana.png">
-    <a-asset-item id="modeloBoton" src="modelos/boton.glb"></a-asset-item>
-    <a-asset-item id="londo" src="modelos/anor_londo.glb"></a-asset-item>
-  </a-assets>
+<!-- ================= RECURSOS ================= -->
 
-  <!-- ================= JUGADOR ================= -->
-  <a-entity id="player" position="0 1.6 -165.200" rotation="0 180 0">
-    <a-camera wasd-controls look-controls>
-      <a-cursor color="red"></a-cursor>
-    </a-camera>
-  </a-entity>
+<a-assets>
+<img id="lolbanana" src="IMG/banana.png">
+<a-asset-item id="modeloBoton" src="modelos/boton.glb"></a-asset-item>
+<a-asset-item id="londo" src="modelos/anor_londo.glb"></a-asset-item>
+<a-asset-item id="doorModel" src="modelos/door.glb"></a-asset-item>
+</a-assets>
 
- 
-  <!-- ================= PIZARRA ================= -->
+<!-- ================= JUGADOR ================= -->
 
-  <a-plane id="panel"
-           position="0 15 218.23"
-           rotation="0 180 0"
-           width="26"
-           height="5.5"
-           color="#000000">
-    
-    <a-entity id="texto"
-      position="0 0 0.1"
-      text="value: Bienvenido al experimento.\n\nPulsa el botón 3D.; 
-            align: center; 
-            width: 24;
-            color: white;">
-    </a-entity>
+<a-entity id="player" position="0 1.6 -165.200" rotation="0 180 0">
+<a-camera wasd-controls look-controls>
+<a-cursor color="red"></a-cursor>
+</a-camera>
+</a-entity>
 
-  </a-plane>
+<!-- ================= PANEL TEXTO ================= -->
 
-  <!-- ================= BANANA DETRÁS ================= -->
+<a-plane
+id="panel"
+position="0 15 218.23"
+rotation="0 180 0"
+width="26"
+height="5.5"
+color="#000000">
 
-  <a-plane 
-      src="#lolbanana"
-      position="0 5 225"
-      rotation="0 360 0"
-      width="6"
-      height="4">
-  </a-plane>
+<a-entity
+id="texto"
+position="0 0 0.1"
+text="value: Bienvenido al experimento.\n\nPulsa el botón 3D.;
+align:center;
+width:24;
+color:white;">
+</a-entity>
 
-  <!-- ================= BOTÓN 3D (GLB) RECTO ================= -->
+</a-plane>
 
-  <a-entity id="portal"
-            gltf-model="#modeloBoton"
-            position="0 -4 218.23"
-            rotation="0 270 0"
-            scale="10 10 10"
-            class="clickable">
-  </a-entity>
+<!-- ================= BANANA ================= -->
 
-  <a-light type="ambient" intensity="1.2"></a-light>
-  <!--==================Anorlondo============== -->
-  <a-entity 
-      gltf-model="#londo"
-            position="-2550 -1430.400 -5525"
-            rotation="0 90 0"
-            scale="10 10 10">
-          </a-entity>
-  <!-- ================= SCRIPT ================= -->
+<a-plane
+src="#lolbanana"
+position="0 5 225"
+rotation="0 360 0"
+width="6"
+height="4">
+</a-plane>
 
- <script>
-    const textos = [
-      "En Jack es troba en una carretera, després d'haver voltat per un bosc a la nit.",
-      "Està completament embriagat per l’alcohol després de sortir d’un bar.",
-      "Es troba a punt de decidir com acabar amb tot",
-      "Però... serà aquest el final?",
-      "Es pregunta si el seu patiment mereix seguir endavant?",  
-      " O si només és un ser menyspreable més.",
-      "Al cap i a la fi, hi ha destins que són molt pitjors que la mort."
-      ];
-    let indice = 0;
+<!-- ================= BOTÓN ================= -->
 
-    const texto = document.querySelector("#texto");
-    const portal = document.querySelector("#portal");
+<a-entity
+id="portal"
+gltf-model="#modeloBoton"
+position="0 -4 218.23"
+rotation="0 270 0"
+scale="10 10 10">
+</a-entity>
 
-    // Click en el modelo GLB para avanzar el texto
-    portal.addEventListener("click", function () {
-      if (indice < textos.length) {
-        texto.setAttribute("text", "value", textos[indice]);
+<!-- ================= ANOR LONDO ================= -->
 
-        // Último texto en rojo
-        if (indice === textos.length - 1) {
-          texto.setAttribute("text", "color", "red");
-        }
+<a-entity
+gltf-model="#londo"
+position="-2550 -1430.4 -5525"
+rotation="0 90 0"
+scale="10 10 10">
 
-        indice++;
-      }
-    });
-  </script>
+<!-- PUERTA DENTRO DEL MODELO -->
+
+<a-entity
+id="puerta"
+gltf-model="#doorModel"
+position="-556.690 142.666 255.16"
+rotation="0 180 0"
+scale="0.3 0.3 0.3"
+visible="false">
+</a-entity>
+
+</a-entity>
+
+<a-light type="ambient" intensity="1.2"></a-light>
+
+<!-- ================= SCRIPT ================= -->
+
+<script>
+
+const textos = [
+"En Jack es troba en una carretera, després d'haver voltat per un bosc a la nit.",
+"Està completament embriagat per l’alcohol després de sortir d’un bar.",
+"Es troba a punt de decidir com acabar amb tot",
+"Però... serà aquest el final?",
+"Es pregunta si el seu patiment mereix seguir endavant?",
+"O si només és un ser menyspreable més.",
+"Al cap i a la fi, hi ha destins que són molt pitjors que la mort."
+];
+
+let indice = 0;
+
+const texto = document.querySelector("#texto");
+const portal = document.querySelector("#portal");
+const puerta = document.querySelector("#puerta");
+
+portal.addEventListener("click", function(){
+
+if(indice < textos.length){
+
+texto.setAttribute("text","value", textos[indice]);
+
+if(indice === textos.length - 1){
+
+texto.setAttribute("text","color","red");
+
+puerta.setAttribute("visible", true);
+
+}
+
+indice++;
+
+}
+
+});
+
+</script>
 
 </a-scene>
 
