@@ -14,9 +14,11 @@
 
 <a-assets>
 <img id="lolbanana" src="IMG/banana.png">
-<a-asset-item id="modeloBoton" src="modelos/boton.glb"></a-asset-item>
+<a-asset-item id="modeloBoton" src="modelos/altar.glb"></a-asset-item>
 <a-asset-item id="londo" src="modelos/anor_londo.glb"></a-asset-item>
 <a-asset-item id="doorModel" src="modelos/door.glb"></a-asset-item>
+<a-asset-item id="gabriel" src="modelos/virtue.glb"></a-asset-item>
+<a-asset-item id="kinght" src="modelos/knight_artorias.glb"></a-asset-item>
 </a-assets>
 
 <!-- ================= JUGADOR ================= -->
@@ -40,7 +42,7 @@ color="#000000">
 <a-entity
 id="texto"
 position="0 0 0.1"
-text="value: Bienvenido al experimento.\n\nPulsa el botón 3D.;
+text="value:  lol banana.\n\nCum.;
 align:center;
 width:24;
 color:white;">
@@ -64,8 +66,16 @@ height="4">
 id="portal"
 gltf-model="#modeloBoton"
 position="0 -4 218.23"
-rotation="0 270 0"
-scale="10 10 10">
+rotation="0 180 0"
+scale="0.1 0.1 0.1">
+</a-entity>
+
+<!--Dark Kight-->
+<a-entity
+gltf-model="#kinght"
+position=" 138.855  0.591 212.737"
+rotation="0 195 0"
+scale="0.09 0.09 0.09">
 </a-entity>
 
 <!-- ================= ANOR LONDO ================= -->
@@ -76,8 +86,7 @@ position="-2550 -1430.4 -5525"
 rotation="0 90 0"
 scale="10 10 10">
 
-<!-- PUERTA DENTRO DEL MODELO -->
-
+<!--================== PUERTA ============ -->
 <a-entity
 id="puerta"
 gltf-model="#doorModel"
@@ -85,6 +94,16 @@ position="-556.690 142.666 255.16"
 rotation="0 180 0"
 scale="0.3 0.3 0.3"
 visible="false">
+</a-entity>
+
+<!-- GABRIEL -->
+
+<a-entity
+id="gabrielModel"
+gltf-model="#gabriel"
+position="-580.574 145.799 254.797"
+rotation="0 90 0"
+scale="2 2 2">
 </a-entity>
 
 </a-entity>
@@ -96,13 +115,13 @@ visible="false">
 <script>
 
 const textos = [
-"En Jack es troba en una carretera, després d'haver voltat per un bosc a la nit.",
-"Està completament embriagat per l’alcohol després de sortir d’un bar.",
+"En Jack es troba en una carretera, despres d'haver voltat per un bosc a la nit.",
+"Esta completament embriagat per l’alcohol despres de sortir d’un bar.",
 "Es troba a punt de decidir com acabar amb tot",
-"Però... serà aquest el final?",
+"Pero... sera aquest el final?",
 "Es pregunta si el seu patiment mereix seguir endavant?",
-"O si només és un ser menyspreable més.",
-"Al cap i a la fi, hi ha destins que són molt pitjors que la mort."
+"O si nomes es un ser menyspreable mes.",
+"Al cap i a la fi, hi ha destins que son molt pitjors que la mort."
 ];
 
 let indice = 0;
@@ -110,6 +129,7 @@ let indice = 0;
 const texto = document.querySelector("#texto");
 const portal = document.querySelector("#portal");
 const puerta = document.querySelector("#puerta");
+const gabriel = document.querySelector("#gabrielModel");
 
 portal.addEventListener("click", function(){
 
@@ -122,6 +142,7 @@ if(indice === textos.length - 1){
 texto.setAttribute("text","color","red");
 
 puerta.setAttribute("visible", true);
+gabriel.setAttribute("visible", true);
 
 }
 
