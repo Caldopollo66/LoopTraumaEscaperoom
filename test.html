@@ -1,26 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
+<meta charset="utf-8">
 
   <!-- A-Frame 2-->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 
   <!-- Physics -->
-  <script src="https://cdn.rawgit.com/donmccurdy/aframe-extras/v3.8.6/dist/aframe-extras.min.js"></script>
+
+<script src="https://agarci9inscastellet.github.io/scaperoom/js/scaperoom.js"> </script>
 </head>
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
 
-    const nextLevelObjects = document.querySelectorAll('.next-level');
+  const nextLevelObjects = document.querySelectorAll('.next-level');
 
-    nextLevelObjects.forEach(object => {
-      object.addEventListener('click', () => {
-        window.location.href = "intro.html";
-      });
+  nextLevelObjects.forEach(object => {
+   object.addEventListener('click', function () {
+  window.location.href = "intro.html";
     });
-
   });
+
+});
 </script>
 <body>
 
@@ -38,15 +39,16 @@
   </a-assets>
 
   <!-- JUGADOR MÁS PEQUEÑO Y MÁS LENTO -->
- <a-entity id="jugador" position="0.050 -0.002 -0.229" rotation="">
-  <a-camera look-controls>
-    <a-cursor></a-cursor>
-  </a-camera>
+<a-entity id="player" position="0.050 -0.002 -0.229" rotation="0 180 0">
+<a-camera   wasd-controls="acceleration: 200" look-controls>
+<a-cursor color="red"></a-cursor>
+</a-camera>
 </a-entity>
 
   <!-- CIELO -->
   <a-sky src="#noche"></a-sky>
   <a-entity
+  class="next-level"
     gltf-model="#Cotxe"
     position="3.50 1.438 6.110"
     scale="0.07 0.07 0.07"
@@ -71,7 +73,8 @@
   </a-entity>
   <!-- Jägermeister-->
 <a-entity
-    class="next-level"
+class="next-level"
+id="btnjagger"
     gltf-model="#jagger"
     position="-0.960 1.448 -1.013"
     scale="0.095 0.095 0.095"
@@ -79,12 +82,14 @@
 </a-entity> 
   <!-- Cuerda-->
 <a-entity
+class="next-leve"
     gltf-model="#rope"
     position="-0.375 2.132 2.527"
     scale="0.005 0.005 0.005"
     static-body>
 </a-entity>
  <a-plane 
+ id="btnsonrisa"
       src="#sonrisa"
       position="-9.045 2.132 -2.030"
       rotation="0 90 0"
@@ -92,13 +97,17 @@
       width="6"
       height="4">
   </a-plane>
-    <!-- Hitbox invisible grande -->
-  <a-box
-    class="next-level"
-    position="1 1.500 -1.013"
-    scale="0.09 0.09 0.09"
-    material="transparent:false">
-  </a-box>
+ 
+  <!-- CARRETERA MÁS GRANDE -->
+  <a-entity 
+    gltf-model="#carreteraModel"
+    position="24 -67.100 53"
+    scale="20 20 20"
+    static-body>
 </a-scene>
+
+<script>
+  questionGate("#btnsonrisa", 0, "intro.html");
+</script>
 </body>
 </html>
