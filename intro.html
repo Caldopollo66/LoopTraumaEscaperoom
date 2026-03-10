@@ -18,8 +18,9 @@
     <a-asset-item id="doorModel" src="modelos/door.glb"></a-asset-item>
     <a-asset-item id="gabriel" src="modelos/virtue.glb"></a-asset-item>
     <a-asset-item id="kinght" src="modelos/knight_artorias.glb"></a-asset-item>
-    <a-asset-item id="pruab1" src="modelos/pruab1.glb"></a-asset-item> <!-- Nuevo modelo -->
+    <a-asset-item id="plataforma" src="modelos/platform.glb"></a-asset-item> 
     <a-asset-item id="caballero" src="modelos/knight.glb"></a-asset-item>
+     <a-asset-item id="caliz" src="modelos/caliz.glb"></a-asset-item>
   </a-assets>
 
   <!-- ================= JUGADOR ================= -->
@@ -117,15 +118,22 @@ scale="0.09 0.09 0.09">
       scale="3 3 3">
     </a-entity>
 
-    <!-- PLATAFORMA (modelo clicable, solo inventario) -->
+    <!-- PLATAFORMA -->
     <a-entity
-      id="modelo1"
-      gltf-model="#pruab1"
+      id="plataforma"
+      gltf-model="#plataforma"
       position="-574.444 142.290 241.415"
       rotation="0 90 0"
       scale="0.02 0.02 0.02">
     </a-entity>
-
+<!-- ========caliz========== -->
+    <a-entity
+      id="caliz"
+      gltf-model="#caliz"
+      position="-574.444 142.290 241.415"
+      rotation="0 90 0"
+      scale="0.2 0.2 0.2">
+    </a-entity>
     <!-- CABALLERO -->
     <a-entity
       id="caballero"
@@ -171,11 +179,11 @@ scale="0.09 0.09 0.09">
     // INVENTARIO simplificado a texto
     const inventario = document.querySelector("#inventario");
     const inventarioText = document.querySelector("#inventarioText");
-    const modelo1 = document.querySelector("#modelo1");
+    const modelo1 = document.querySelector("#caliz");
 
     modelo1.addEventListener("click", function(){
       inventario.setAttribute("visible", true);
-      inventarioText.setAttribute("value", "pruab1"); // nombre del objeto mostrado
+      inventarioText.setAttribute("value", "caliz"); // nombre del objeto mostrado
       // La plataforma NO desaparece
     });
 
