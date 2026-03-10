@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+
+  <!-- A-Frame 2-->
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+
+  <!-- Physics -->
+
+<script src="https://agarci9inscastellet.github.io/scaperoom/js/scaperoom.js"> </script>
+</head>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+  const nextLevelObjects = document.querySelectorAll('.next-level');
+
+  nextLevelObjects.forEach(object => {
+   object.addEventListener('click', function () {
+  window.location.href = "intro.html";
+    });
+  });
+
+});
+</script>
+<body>
+
+<a-scene physics="debug: false">
+
+  <!-- ASSETS -->
+  <a-assets>
+    <img id="nublado" src="IMG/nublado.jpg">
+    <a-asset-item id="forest" src="modelos/forest.glb"></a-asset-item>
+    <a-asset-item id="Cotxe" src="modelos/coxe.glb"> </a-asset-item>
+    <a-asset-item id="alcol" src="modelos/alcol.glb"> </a-asset-item>
+    <a-asset-item id="jagger" src="modelos/jagger.glb"> </a-asset-item>
+    <a-asset-item id="rope" src="modelos/rope.glb"> </a-asset-item>
+    <img id="sonrisa" src="IMG/sonrisa.jpg">
+  </a-assets>
+
+  <!-- JUGADOR MÁS PEQUEÑO Y MÁS LENTO -->
+<a-entity id="player" position="0.050 -0.002 -0.229" rotation="0 180 0">
+<a-camera   wasd-controls="acceleration: 200" look-controls>
+<a-cursor color="red"></a-cursor>
+</a-camera>
+</a-entity>
+
+  <!-- CIELO -->
+  <a-sky src="#nublado"></a-sky>
+ <!-- CARRETERA MÁS GRANDE -->
+  <a-entity 
+    gltf-model="#forest"
+    position="24 -5 53"
+    scale="20 20 20"
+    static-body>
+  </a-entity> 
