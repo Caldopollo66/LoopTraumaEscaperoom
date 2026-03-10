@@ -32,8 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
     <img id="nublado" src="IMG/nublado.jpg">
     <a-asset-item id="forest" src="modelos/forest.glb"></a-asset-item>
     <a-asset-item id="road" src="modelos/road.glb"> </a-asset-item>
-    <a-asset-item id="alcol" src="modelos/alcol.glb"> </a-asset-item>
-    <a-asset-item id="jagger" src="modelos/jagger.glb"> </a-asset-item>
+    <a-asset-item id="fenix" src="modelos/fenix.glb"> </a-asset-item>
+    <a-asset-item id="palo" src="modelos/palo.glb"> </a-asset-item>
     <a-asset-item id="rope" src="modelos/rope.glb"> </a-asset-item>
     <img id="sonrisa" src="IMG/sonrisa.jpg">
   </a-assets>
@@ -46,18 +46,25 @@ document.addEventListener('DOMContentLoaded', () => {
 </a-entity>
 
   <!-- CIELO -->
-  <a-sky src="#nublado"></a-sky>
+  <a-sky src="#nublado" scale="10 10 10"> </a-sky>
  <!-- CARRETERA MÁS GRANDE -->
   <a-entity 
     gltf-model="#forest"
     position="24 -5 53"
     scale="20 20 20"
     static-body>
-  </a-entity> 
-   <!-- CARRETERA MÁS GRANDE -->
-  <a-entity 
-    gltf-model="#road"
-    position="24 -5 -117"
-    scale="1 1 1"
+  </a-entity>
+    <a-entity 
+    gltf-model="#fenix"
+    position="36.811 656.09 -1768.9"
+    scale="5 5 5"
     static-body>
   </a-entity> 
+       <a-entity 
+    gltf-model="#palo"
+    position="0.050 -0.002 -0.229"
+    scale="5 5 5"
+    static-body>
+  </a-entity> 
+   
+      
