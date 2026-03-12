@@ -10,55 +10,68 @@
 
 <a-scene background="color: #FFFFFF">
 
-<!-- ================= RECURSOS ================= -->
+  <!-- ================= RECURSOS ================= -->
+  <a-assets>
+    <img id="lolbanana" src="IMG/banana.png">
+    <a-asset-item id="modeloBoton" src="modelos/altar.glb"></a-asset-item>
+    <a-asset-item id="londo" src="modelos/anor_londo.glb"></a-asset-item>
+    <a-asset-item id="doorModel" src="modelos/door.glb"></a-asset-item>
+    <a-asset-item id="gabriel" src="modelos/virtue.glb"></a-asset-item>
+    <a-asset-item id="kinght" src="modelos/knight_artorias.glb"></a-asset-item>
+    <a-asset-item id="pruab1" src="modelos/pruab1.glb"></a-asset-item> <!-- Nuevo modelo -->
+    <a-asset-item id="caballero" src="modelos/knight.glb"></a-asset-item>
+  </a-assets>
 
-<a-assets>
-<img id="lolbanana" src="IMG/banana.png">
-<a-asset-item id="modeloBoton" src="modelos/altar.glb"></a-asset-item>
-<a-asset-item id="londo" src="modelos/anor_londo.glb"></a-asset-item>
-<a-asset-item id="doorModel" src="modelos/door.glb"></a-asset-item>
-<a-asset-item id="gabriel" src="modelos/virtue.glb"></a-asset-item>
-<a-asset-item id="kinght" src="modelos/knight_artorias.glb"></a-asset-item>
-</a-assets>
+  <!-- ================= JUGADOR ================= -->
+  <a-entity id="player" position="0 1.6 -165.200" rotation="0 180 0">
+    <a-camera wasd-controls="acceleration: 200" look-controls>
+      <a-cursor color="red"></a-cursor>
 
-<!-- ================= JUGADOR ================= -->
+      <!-- ================= MINI INVENTARIO ================= -->
+      <a-entity id="inventario" visible="false" position="0.8 -0.8 -1.5">
+        <a-plane width="1.0" height="0.4" color="#333" opacity="0.9" radius="0.05">
+          <a-text 
+            id="inventarioText"
+            value=""
+            align="center" 
+            color="yellow" 
+            width="0.9" 
+            position="0 0 0.01">
+          </a-text>
+        </a-plane>
+      </a-entity>
 
-<a-entity id="player" position="0 1.6 -165.200" rotation="0 180 0">
-<a-camera   wasd-controls="acceleration: 200" look-controls>
-<a-cursor color="red"></a-cursor>
-</a-camera>
-</a-entity>
+    </a-camera>
+  </a-entity>
 
-<!-- ================= PANEL TEXTO ================= -->
+  <!-- ================= PANEL TEXTO ================= -->
+  <a-plane
+    id="panel"
+    position="0 15 218.23"
+    rotation="0 180 0"
+    width="26"
+    height="5.5"
+    color="#000000">
 
-<a-plane
-id="panel"
-position="0 15 218.23"
-rotation="0 180 0"
-width="26"
-height="5.5"
-color="#000000">
+    <a-entity
+      id="texto"
+      position="0 0 0.1"
+      text="value: Saps quin es el teu desti?.\nalgun text;
+      align:center;
+      width:24;
+      color:white;">
+    </a-entity>
 
-<a-entity
-id="texto"
-position="0 0 0.1"
-text="value:  lol banana.\n\nCum.;
-align:center;
-width:24;
-color:white;">
-</a-entity>
+  </a-plane>
 
-</a-plane>
-
-<!-- ================= BANANA ================= -->
-
-<a-plane
-src="#lolbanana"
-position="0 5 225"
-rotation="0 360 0"
-width="6"
-height="4">
-</a-plane>
+  <!-- ================= BANANA ================= -->
+  <a-plane
+    src="#lolbanana"
+    position="0 5 225"
+    rotation="0 360 0"
+    width="6"
+    height="4">
+  </a-plane>
 
 <!-- ================= BOTÓN ================= -->
 
@@ -69,102 +82,105 @@ position="0 -4 218.23"
 rotation="0 180 0"
 scale="0.1 0.1 0.1">
 </a-entity>
-<!-- Luz -->
-<a-light 
-  type="directional"
-  position="138.855 5 212.737"
-  intensity="20"
-  distance="100"
-  color="#ffffff">
-</a-light>
+
 <!--Dark Kight-->
 <a-entity
 gltf-model="#kinght"
-position=" 138.855  0.700 212.737"
+position=" 138.855  0.591 212.737"
 rotation="0 195 0"
 scale="0.09 0.09 0.09">
 </a-entity>
 
-<!-- ================= ANOR LONDO ================= -->
+  <!-- ================= ANOR LONDO ================= -->
+  <a-entity
+    gltf-model="#londo"
+    position="-2550 -1430.4 -5525"
+    rotation="0 90 0"
+    scale="10 10 10">
 
-<a-entity
-gltf-model="#londo"
-position="-2550 -1430.4 -5525"
-rotation="0 90 0"
-scale="10 10 10">
+    <!-- PUERTA -->
+    <a-entity
+      id="puerta"
+      gltf-model="#doorModel"
+      position="-556.690 142.666 255.16"
+      rotation="0 180 0"
+      scale="0.3 0.3 0.3"
+      visible="false">
+    </a-entity>
 
-<!--================== PUERTA ============ -->
-<a-entity
-id="puerta"
-gltf-model="#doorModel"
-position="-556.690 142.666 255.16"
-rotation="0 180 0"
-scale="0.3 0.3 0.3"
-visible="false">
-</a-entity>
+    <!-- GABRIEL siempre visible y grande -->
+    <a-entity
+      id="gabrielModel"
+      gltf-model="#gabriel"
+      position="-580.574 145.799 254.797"
+      rotation="0 90 0"
+      scale="3 3 3">
+    </a-entity>
 
-<!-- GABRIEL -->
+    <!-- PLATAFORMA (modelo clicable, solo inventario) -->
+    <a-entity
+      id="modelo1"
+      gltf-model="#pruab1"
+      position="-574.444 142.290 241.415"
+      rotation="0 90 0"
+      scale="0.02 0.02 0.02">
+    </a-entity>
 
-<a-entity
-id="gabrielModel"
-gltf-model="#gabriel"
-position="-580.574 145.799 254.797"
-rotation="0 90 0"
-scale="2 2 2">
-</a-entity>
+    <!-- CABALLERO -->
+    <a-entity
+      id="caballero"
+      gltf-model="#caballero"
+      position="-574.444 147.844 242.374"
+      rotation="0 90 0"
+      scale="5 5 5">
+    </a-entity>
 
-</a-entity>
+    <a-light type="ambient" intensity="1.2"></a-light>
 
-<a-light type="ambient" intensity="1.2"></a-light>
+  </a-entity>
 
-<!-- ================= SCRIPT ================= -->
+  <!-- ================= SCRIPT ================= -->
+  <script>
 
-<script>
+    const textos = [
+      "Has retornat, ets en Jack o tu jugador as tornat ?.",
+      "No importa si estas aqui es per alguna rao que nomes ell o tu sap....",
+      "Pero voldras continuar o tornaras a rendirte de nou?",
+      "Pero... sera aquest el final?",
+      "Es pregunta si el seu patiment mereix seguir endavant?",
+      "O si nomes es un ser menyspreable mes.",
+      "Al cap i a la fi, hi ha destins que son molt pitjors que la mort no?."
+    ];
 
-const textos = [
-"En Jack es troba en una carretera, despres d'haver voltat per un bosc a la nit.",
-"Esta completament embriagat per l’alcohol despres de sortir d’un bar.",
-"Es troba a punt de decidir com acabar amb tot",
-"Pero... sera aquest el final?",
-"Es pregunta si el seu patiment mereix seguir endavant?",
-"O si nomes es un ser menyspreable mes.",
-"Al cap i a la fi, hi ha destins que son molt pitjors que la mort."
-];
+    let indice = 0;
+    const texto = document.querySelector("#texto");
+    const portal = document.querySelector("#portal");
+    const puerta = document.querySelector("#puerta");
 
-let indice = 0;
+    portal.addEventListener("click", function() {
+      if(indice < textos.length){
+        texto.setAttribute("text","value", textos[indice]);
+        if(indice === textos.length - 1){
+          texto.setAttribute("text","color","red");
+          puerta.setAttribute("visible", true);
+        }
+        indice++;
+      }
+    });
 
-const texto = document.querySelector("#texto");
-const portal = document.querySelector("#portal");
-const puerta = document.querySelector("#puerta");
-const gabriel = document.querySelector("#gabrielModel");
+    // INVENTARIO simplificado a texto
+    const inventario = document.querySelector("#inventario");
+    const inventarioText = document.querySelector("#inventarioText");
+    const modelo1 = document.querySelector("#modelo1");
 
-portal.addEventListener("click", function(){
+    modelo1.addEventListener("click", function(){
+      inventario.setAttribute("visible", true);
+      inventarioText.setAttribute("value", "pruab1"); // nombre del objeto mostrado
+      // La plataforma NO desaparece
+    });
 
-if(indice < textos.length){
-
-texto.setAttribute("text","value", textos[indice]);
-
-if(indice === textos.length - 1){
-
-texto.setAttribute("text","color","red");
-
-puerta.setAttribute("visible", true);
-gabriel.setAttribute("visible", true);
-
-}
-
-indice++;
-
-}
-
-});
-
-</script>
-
+  </script>
 </a-scene>
 
 </body>
 </html>
-
-
-<!--jan gay#
