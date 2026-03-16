@@ -9,20 +9,55 @@
   <!-- Physics -->
 
 <script src="https://agarci9inscastellet.github.io/scaperoom/js/scaperoom.js"> </script>
-</head>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
 
-  const nextLevelObjects = document.querySelectorAll('.next-level');
+document.addEventListener("DOMContentLoaded", () => {
 
-  nextLevelObjects.forEach(object => {
-   object.addEventListener('click', function () {
-  window.location.href = "intro.html";
-    });
-  });
+const tito = document.querySelector("#titoNPC");
+const quiz = document.getElementById("quiz");
+const mensaje = document.getElementById("mensaje");
+
+tito.addEventListener("click", () => {
+  quiz.style.display = "block";
+});
+
+window.respuesta = function(opcion){
+
+if(opcion === "b"){
+mensaje.innerHTML = "✅ Correcto! Ve a buscar el baño para continuar.";
+}
+else{
+mensaje.innerHTML = "❌ Esa no es la correcta. Inténtalo otra vez.";
+}
+
+}
 
 });
+
 </script>
+</head>
+<div id="quiz" style="
+position: fixed;
+top: 50%;
+left: 50%;
+transform: translate(-50%,-50%);
+background: white;
+padding: 20px;
+border-radius: 10px;
+display: none;
+text-align: center;
+font-family: Arial;
+">
+
+<h2>Cual es la comida favorita del Tito?</h2>
+
+<button onclick="respuesta('a')">A: marihuana</button><br><br>
+<button onclick="respuesta('b')">B: pistachos</button><br><br>
+<button onclick="respuesta('c')">C: kebab</button>
+
+<p id="mensaje"></p>
+
+</div>
 <body>
 
 <a-scene physics="debug: false">
@@ -33,9 +68,9 @@ document.addEventListener('DOMContentLoaded', () => {
     <a-asset-item id="forest" src="modelos/forest.glb"></a-asset-item>
     <a-asset-item id="road" src="modelos/road.glb"> </a-asset-item>
     <a-asset-item id="fenix" src="modelos/fenix.glb"> </a-asset-item>
-    <a-asset-item id="palo" src="modelos/palo.glb"> </a-asset-item>
-    <a-asset-item id="rope" src="modelos/rope.glb"> </a-asset-item>
-    <img id="sonrisa" src="IMG/sonrisa.jpg">
+    <a-asset-item id="toilet" src="modelos/portaltoilet.glb"> </a-asset-item>
+    <a-asset-item id="baño" src="modelos/baño.glb"> </a-asset-item>
+    <a-asset-item id="tito" src="modelos/tito.glb"> </a-asset-item>
   </a-assets>
 
   <!-- JUGADOR MÁS PEQUEÑO Y MÁS LENTO -->
@@ -54,17 +89,29 @@ document.addEventListener('DOMContentLoaded', () => {
     scale="20 20 20"
     static-body>
   </a-entity>
-    <a-entity 
+  <a-entity 
     gltf-model="#fenix"
     position="36.811 656.09 -1768.9"
     scale="5 5 5"
     static-body>
   </a-entity> 
-       <a-entity 
-    gltf-model="#palo"
-    position="0.050 -0.002 -0.229"
+  <a-entity 
+    gltf-model="#toilet"
+    position="124.27 -3.945 60.53"
     scale="5 5 5"
     static-body>
   </a-entity> 
-   
-      
+  <a-entity 
+    gltf-model="#baño"
+    position="124.27 -3.945 60.53"
+    scale="10 10 10"
+    static-body>
+  </a-entity> 
+  <a-entity 
+  id="titoNPC"
+  class="clickable"
+  gltf-model="#tito"
+  position="0.050 -0.002 -0.229"
+  scale="20 20 20"
+  static-body>
+  </a-entity>
