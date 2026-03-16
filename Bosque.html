@@ -1,117 +1,149 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-
-  <!-- A-Frame 2-->
+  <meta charset="utf-8">
+  <title>Escena Tito - Escape Room</title>
+  
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 
-  <!-- Physics -->
+  <style>
+    /* Estilo para el recuadro del inventario */
+    #inventario {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 120px;
+      height: 50px;
+      background: rgba(0, 0, 0, 0.7);
+      color: white;
+      border: 2px solid #fff;
+      display: none; /* Oculto al principio */
+      align-items: center;
+      justify-content: center;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      z-index: 100;
+    }
+  </style>
 
-<script src="https://agarci9inscastellet.github.io/scaperoom/js/scaperoom.js"> </script>
-<script>
+  <script>
+    // Variable global para saber si Tito nos ha dado permiso
+    let permisoParaCoger = false;
 
-document.addEventListener("DOMContentLoaded", () => {
+    AFRAME.registerComponent('tito-pregunta', {
+      init: function () {
+        this.el.addEventListener('click', () => {
+          let respuesta = prompt("Le has preguntado al tito que donde estas y el te dice que tiene dinero para ti, pero solo si respondes bien una pregunta\n\n¿Cual es el desayuno favorito del tito??\nA) Cemento\nB) Pescado\nC) Sushi\nD) Fentanilo\nE) Kebab");
 
-const tito = document.querySelector("#titoNPC");
-const quiz = document.getElementById("quiz");
-const mensaje = document.getElementById("mensaje");
+          if (respuesta && respuesta.toUpperCase() === 'E') {
+            alert("¡Correcto! El Tito te deja coger tu regalo.");
+            permisoParaCoger = true; // Desbloqueamos la bolsa
+          } else if (respuesta !== null) {
+            alert("Vuelve a intentarlo... el tito tiene algo para ti.");
+          }
+        });
+      }
+    });
 
-tito.addEventListener("click", () => {
-  quiz.style.display = "block";
-});
+    AFRAME.registerComponent('recoger-coca', {
+      init: function () {
+        this.el.addEventListener('click', () => {
+          if (permisoParaCoger) {
+            // Desaparece el objeto de la escena
+            this.el.setAttribute('visible', 'false');
+            this.el.setAttribute('scale', '0 0 0'); // Por si acaso las físicas
+            
+            // Mostramos el recuadro en la esquina
+            document.getElementById('inventario').style.display = 'flex';
+            alert("Has obtenido: El dinero, ya puedes comprar lo que quieras (Tienes un kebab por le mapa búscalo)");
+          } else {
+            alert("No toques eso... primero responde al Tito.");
+          }
+        });
+      }
+    });
 
-window.respuesta = function(opcion){
-
-if(opcion === "b"){
-mensaje.innerHTML = "✅ Correcto! Ve a buscar el baño para continuar.";
-}
-else{
-mensaje.innerHTML = "❌ Esa no es la correcta. Inténtalo otra vez.";
-}
-
-}
-
-});
-
-</script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const nextLevelObjects = document.querySelectorAll('.next-level');
+      nextLevelObjects.forEach(object => {
+        object.addEventListener('click', function () {
+          window.location.href = "intro.html";
+        });
+      });
+    });
+  </script>
 </head>
-<div id="quiz" style="
-position: fixed;
-top: 50%;
-left: 50%;
-transform: translate(-50%,-50%);
-background: white;
-padding: 20px;
-border-radius: 10px;
-display: none;
-text-align: center;
-font-family: Arial;
-">
 
-<h2>Cual es la comida favorita del Tito?</h2>
-
-<button onclick="respuesta('a')">A: marihuana</button><br><br>
-<button onclick="respuesta('b')">B: pistachos</button><br><br>
-<button onclick="respuesta('c')">C: kebab</button>
-
-<p id="mensaje"></p>
-
-</div>
 <body>
+  <div id="inventario">Dinero x5</div>
 
-<a-scene physics="debug: false">
+  <a-scene physics="debug: false" cursor="rayOrigin: mouse">
 
-  <!-- ASSETS -->
-  <a-assets>
-    <img id="nublado" src="IMG/nublado.jpg">
-    <a-asset-item id="forest" src="modelos/forest.glb"></a-asset-item>
-    <a-asset-item id="road" src="modelos/road.glb"> </a-asset-item>
-    <a-asset-item id="fenix" src="modelos/fenix.glb"> </a-asset-item>
-    <a-asset-item id="toilet" src="modelos/portaltoilet.glb"> </a-asset-item>
-    <a-asset-item id="baño" src="modelos/baño.glb"> </a-asset-item>
-    <a-asset-item id="tito" src="modelos/tito.glb"> </a-asset-item>
-  </a-assets>
+    <a-assets>
+      <img id="nublado" src="IMG/nublado.jpg">
+      <a-asset-item id="forest" src="modelos/forest.glb"></a-asset-item>
+      <a-asset-item id="fenix" src="modelos/fenix.glb"> </a-asset-item>
+      <a-asset-item id="toilet" src="modelos/portaltoilet.glb"> </a-asset-item>
+      <a-asset-item id="baño" src="modelos/baño.glb"> </a-asset-item>
+      <a-asset-item id="tito" src="modelos/tito.glb"> </a-asset-item>
+      <a-asset-item id="cock" src="modelos/cock.glb"> </a-asset-item>
+      <a-asset-item id="cart" src="modelos/cart.glb"> </a-asset-item>
+      <a-asset-item id="gustabo" src="modelos/gustabo.glb"> </a-asset-item>
+    </a-assets>
 
-  <!-- JUGADOR MÁS PEQUEÑO Y MÁS LENTO -->
-<a-entity id="player" position="0.050 -0.002 -0.229" rotation="0 180 0">
-<a-camera   wasd-controls="acceleration: 200" look-controls>
-<a-cursor color="red"></a-cursor>
-</a-camera>
-</a-entity>
+    <a-entity id="player" position="0.050 1.6 5" rotation="0 0 0">
+      <a-camera wasd-controls="acceleration: 200" look-controls>
+        <a-cursor 
+          color="red" 
+          raycaster="objects: .interactuable">
+        </a-cursor>
+      </a-camera>
+    </a-entity>
 
-  <!-- CIELO -->
-  <a-sky src="#nublado" scale="10 10 10"> </a-sky>
- <!-- CARRETERA MÁS GRANDE -->
-  <a-entity 
-    gltf-model="#forest"
-    position="24 -5 53"
-    scale="20 20 20"
-    static-body>
-  </a-entity>
-  <a-entity 
-    gltf-model="#fenix"
-    position="36.811 656.09 -1768.9"
-    scale="5 5 5"
-    static-body>
-  </a-entity> 
-  <a-entity 
-    gltf-model="#toilet"
-    position="124.27 -3.945 60.53"
-    scale="5 5 5"
-    static-body>
-  </a-entity> 
-  <a-entity 
-    gltf-model="#baño"
-    position="124.27 -3.945 60.53"
-    scale="10 10 10"
-    static-body>
-  </a-entity> 
-  <a-entity 
-  id="titoNPC"
-  class="clickable"
-  gltf-model="#tito"
-  position="0.050 -0.002 -0.229"
-  scale="20 20 20"
-  static-body>
-  </a-entity>
+    <a-sky src="#nublado" scale="10 10 10"></a-sky>
+
+    <a-entity gltf-model="#forest" position="24 -5 53" scale="20 20 20" static-body></a-entity>
+
+    <a-entity 
+      id="entidad-tito"
+      gltf-model="#tito"
+      class="interactuable"
+      tito-pregunta
+      position="-40 -7.927 -0.229"
+      rotation="0 0 0"
+      scale="16 16 16"
+      static-body>
+    </a-entity>
+
+    <a-entity
+      id="kebab"
+      gltf-model="#cock"
+      class="interactuable"
+      recoger-coca
+      position="-10 -4.445 -5.904" 
+      scale="1 1 1"
+      static-body>
+    </a-entity> 
+    <a-entity
+      id="cart"
+      gltf-model="#cart"
+      position="157.80 -3.838 14.402" 
+      rotation="0 90 0"
+      scale="5 5 5"
+      static-body>
+    </a-entity>
+    <a-entity
+      id="gustabo"
+      gltf-model="#gustabo"
+      position="164 -3.838 81.779" 
+      rotation="0 90 0"
+      scale="5 5 5"
+      static-body>
+    </a-entity>
+    <a-entity gltf-model="#fenix" position="36.811 656.09 -1768.9" scale="5 5 5"></a-entity> 
+    <a-entity gltf-model="#toilet" position="124.27 -3.945 60.53" scale="5 5 5"></a-entity> 
+    <a-entity gltf-model="#baño" position="124.27 -3.945 60.53" scale="10 10 10"></a-entity> 
+
+  </a-scene>
+</body>
+</html>
