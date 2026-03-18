@@ -1,137 +1,141 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
-<title>Sala Experimental</title>
-<script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <meta charset="utf-8">
+    <title>Sala Experimental - Anor Londo</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 </head>
 
 <body>
 
-<a-scene background="color: #FFFFFF">
+<a-scene>
 
-<a-assets>
-    <img id="lolbanana" src="IMG/banana.png">
-    <a-asset-item id="modeloBoton" src="modelos/altar.glb"></a-asset-item>
-    <a-asset-item id="londo" src="modelos/anor_londo.glb"></a-asset-item>
-    <a-asset-item id="doorModel" src="modelos/door.glb"></a-asset-item>
-    <a-asset-item id="gabriel" src="modelos/virtue.glb"></a-asset-item>
-    <a-asset-item id="kinght" src="modelos/knight_artorias.glb"></a-asset-item>
-    <a-asset-item id="plataforma" src="modelos/platform.glb"></a-asset-item> 
-    <a-asset-item id="caballero" src="modelos/knight.glb"></a-asset-item>
-    <a-asset-item id="calizModel" src="modelos/caliz.glb"></a-asset-item>
-    
-    <img id="fons" src="IMG/aaa.jpeg"></a-asset-item>
-</a-assets>
-
-<a-entity id="player" position="10 1.6 -165.200" rotation="0 180 0">
-    <a-camera wasd-controls="acceleration: 200" look-controls>
-        <a-cursor color="red" raycaster="objects: .clickable"></a-cursor>
-
-        <a-text id="mensajeAlerta" 
-                value="Faltan objectes per obrir la porta" 
-                color="red" 
-                align="center" 
-                position="0 0 -1" 
-                scale="0.5 0.5 0.5" 
-                visible="false">
-        </a-text>
-
-        <a-entity id="inventario" visible="false" position="0.8 -0.8 -1.5">
-            <a-plane width="1.0" height="0.4" color="#333" opacity="0.9">
-                <a-text id="inventarioText" value="" align="center" color="yellow" width="0.9" position="0 0 0.01"></a-text>
-            </a-plane>
-        </a-entity>
-    </a-camera>
-</a-entity>
-
-<a-plane id="panel" position="0 15 218.23" rotation="0 180 0" width="26" height="5.5" color="#000000">
-    <a-entity id="texto" position="0 0 0.1" text="value: Saps quin es el teu desti?; align:center; width:24; color:white;"></a-entity>
-</a-plane>
-
-<a-plane src="#lolbanana" position="0 5 225" rotation="0 360 0" width="6" height="4"></a-plane>
-<a-plane src="#fons" position="-0.986 -42.002 -206.992" rotation="0 360 0" scale="500.000  500.000 500.000  "></a-plane>
-<a-entity id="portal" class="clickable" gltf-model="#modeloBoton" position="0 -4 218.23" rotation="0 180 0" scale="0.1 0.1 0.1"></a-entity>
-
-<a-entity gltf-model="#londo" position="-2550 -1430.4 -5525" rotation="0 90 0" scale="10 10 10">
-    
-    <a-entity id="puerta" class="clickable" gltf-model="#doorModel" position="-536.794 142.422 255.026" rotation="0 180 0" scale="2.800 1.350 1.360"></a-entity>
-
-    <a-entity id="calizObjeto" class="clickable" gltf-model="#calizModel" position="-575.933 143.172 255.036" rotation="0 90 0" scale="0.2 0.2 0.2"></a-entity>
-
-    <a-entity id="gabrielModel" gltf-model="#gabriel" position="-580.574 145.799 254.767" rotation="0 90 0" scale="3 3 3"></a-entity>
-  
-    <a-entity id="artorias" gltf-model="#kinght" position="-576.321 142.808 266.472" rotation="0 90 0" scale="0.003 0.003 0.003"></a-entity>
-    <a-light type="ambient" intensity="1.2"></a-light>
-
-</a-entity>
-
-<script>
-    // --- VARIABLES DE ESTADO ---
-    let tieneCaliz = false; // Importante: controlamos si el jugador lo tiene
-    let indice = 0;
-    const textos = [
-        "Has retornat, ets en Jack o tu jugador as tornat ?.",
-        "No importa si estas aqui es per alguna rao que nomes ell o tu sap....",
-        "Pero voldras continuar o tornaras a rendirte de nou?",
-        "Pero... sera aquest el final?",
-        "Es pregunta si el seu patiment mereix seguir endavant?",
-        "O si nomes es un ser menyspreable mes.",
-        "Al cap i a la fi, hi ha destins que son molt pitjors que la mort no?."
-    ];
-
-    // --- ELEMENTOS ---
-    const textoUI = document.querySelector("#texto");
-    const portal = document.querySelector("#portal");
-    const puerta = document.querySelector("#puerta");
-    const mensajeAlerta = document.querySelector("#mensajeAlerta");
-    const inventarioPanel = document.querySelector("#inventario");
-    const inventarioText = document.querySelector("#inventarioText");
-    const calizObjeto = document.querySelector("#calizObjeto");
-
-    // --- LÓGICA DEL PORTAL/ALTAR ---
-    portal.addEventListener("click", function(){
-        if(indice < textos.length){
-            textoUI.setAttribute("text","value",textos[indice]);
-            if(indice === textos.length - 1){
-                textoUI.setAttribute("text","color","red");
-                puerta.setAttribute("visible",true); 
-            }
-            indice++;
-        }
-    });
-
-    // --- LÓGICA DEL CÁLIZ ---
-    calizObjeto.addEventListener("click", function(){
-        this.setAttribute("visible",false);
-        this.classList.remove("clickable");
-        inventarioPanel.setAttribute("visible",true);
-        inventarioText.setAttribute("value","Caliz");
+    <a-assets>
+        <img id="lolbanana" src="IMG/banana.png">
+        <img id="fons" src="IMG/lonod.jpg">
         
-        tieneCaliz = true; // CAMBIO: Ahora el jugador tiene el objeto
-        console.log("Caliz recogido");
-    });
+        <audio id="musicaFondo" src="musica/DS3.mp3" preload="auto"></audio>
 
-    // --- LÓGICA DE LA PUERTA ---
-    puerta.addEventListener("click", function(){
-        if(!tieneCaliz) {
-            // Si NO tiene el cáliz, mostramos el mensaje de error
-            mensajeAlerta.setAttribute("visible", true);
-            
-            // Ocultamos el mensaje después de 3 segundos para que no moleste
-            setTimeout(() => {
-                mensajeAlerta.setAttribute("visible", false);
-            }, 3000);
-            
-        } else {
-            // Si TIENE el cáliz, podrías abrir la puerta o cambiar de escena
-            alert("Puerta abierta con el Cáliz!");
-            // Aquí podrías añadir una animación para que la puerta gire o desaparezca
-            puerta.setAttribute("visible", false); 
-        }
-    });
+        <a-asset-item id="modeloBoton" src="modelos/altar.glb"></a-asset-item>
+        <a-asset-item id="londo" src="modelos/anor_londo.glb"></a-asset-item>
+        <a-asset-item id="doorModel" src="modelos/door.glb"></a-asset-item>
+        <a-asset-item id="gabriel" src="modelos/virtue.glb"></a-asset-item>
+        <a-asset-item id="kinght" src="modelos/knight_artorias.glb"></a-asset-item>
+        <a-asset-item id="plataforma" src="modelos/platform.glb"></a-asset-item> 
+        <a-asset-item id="caballero" src="modelos/knight.glb"></a-asset-item>
+        <a-asset-item id="calizModel" src="modelos/caliz.glb"></a-asset-item>
+         <a-asset-item id="boss" src="modelos/boos.glb"></a-asset-item>
+    </a-assets>
 
-</script>
+    <a-sky src="#fons"></a-sky>
+
+    <a-entity id="player" position="10 1.6 -165.200" rotation="0 180 0">
+        <a-camera wasd-controls="acceleration: 200" look-controls>
+
+            <!-- 🔊 AUDIO GLOBAL (ARREGLADO) -->
+            <a-entity sound="src: #musicaFondo; autoplay: true; loop: true; volume: 4.6; positional: false"></a-entity>
+
+            <a-cursor color="red" raycaster="objects: .clickable"></a-cursor>
+
+            <a-text id="mensajeAlerta" 
+                    value="Faltan objectes per obrir la porta" 
+                    color="red" 
+                    align="center" 
+                    position="0 0 -1" 
+                    scale="0.5 0.5 0.5" 
+                    visible="false">
+            </a-text>
+
+            <a-entity id="inventario" visible="false" position="0.8 -0.8 -1.5">
+                <a-plane width="1.0" height="0.4" color="#333" opacity="0.9">
+                    <a-text id="inventarioText" value="" align="center" color="yellow" width="0.9" position="0 0 0.01"></a-text>
+                </a-plane>
+            </a-entity>
+
+        </a-camera>
+    </a-entity>
+
+    <a-plane id="panel" position="0 15 218.23" rotation="0 180 0" width="26" height="5.5" color="#000000">
+        <a-entity id="texto" position="0 0 0.1" text="value: Saps quin es el teu desti?; align:center; width:24; color:white;"></a-entity>
+    </a-plane>
+
+    <a-plane src="#lolbanana" position="0 5 225" rotation="0 360 0" width="6" height="4"></a-plane>
+    <a-entity id="portal" class="clickable" gltf-model="#modeloBoton" position="0 -4 218.23" rotation="0 180 0" scale="0.1 0.1 0.1"></a-entity>
+
+    <a-entity gltf-model="#londo" position="-2550 -1430.4 -5525" rotation="0 90 0" scale="10 10 10">
+        
+        <a-entity id="puerta" class="clickable" gltf-model="#doorModel" position="-536.794 142.422 255.026" rotation="0 180 0" scale="2.800 1.350 1.360"></a-entity>
+
+        <a-entity id="calizObjeto" class="clickable" gltf-model="#calizModel" position="-575.933 143.172 255.036" rotation="0 90 0" scale="0.2 0.2 0.2"></a-entity>
+
+        <a-entity id="gabrielModel" gltf-model="#gabriel" position="-580.574 145.799 254.767" rotation="0 90 0" scale="3 3 3"></a-entity>
+      
+        <a-entity id="artorias" gltf-model="#kinght" position="-576.321 142.808 266.472" rotation="0 90 0" scale="0.003 0.003 0.003"></a-entity>
+        
+        <a-entity id="caballero" gltf-model="#caballero" position="-575.978 144.561 242.402" rotation="0 90 0" scale="2 2 2"></a-entity>
+
+        <a-entity id="boss" gltf-model="#boss" position="-576.321 142.808 266.472" rotation="0 90 0" scale="0.03 0.03 0.03"></a-entity>
+        
+        <a-light type="ambient" intensity="1.2"></a-light>
+    </a-entity>
+
+    <script>
+        let tieneCaliz = false; 
+        let indice = 0;
+
+        const textos = [
+            "Has retornat, ets en Jack o tu jugador as tornat ?.",
+            "No importa si estas aqui es per alguna rao que nomes ell o tu sap....",
+            "Pero voldras continuar o tornaras a rendirte de nou?",
+            "Pero... sera aquest el final?",
+            "Es pregunta si el seu patiment mereix seguir endavant?",
+            "O si nomes es un ser menyspreable mes.",
+            "Al cap i a la fi, hi ha destins que son molt pitjors que la mort no?."
+        ];
+
+        const textoUI = document.querySelector("#texto");
+        const portal = document.querySelector("#portal");
+        const puerta = document.querySelector("#puerta");
+        const mensajeAlerta = document.querySelector("#mensajeAlerta");
+        const inventarioPanel = document.querySelector("#inventario");
+        const inventarioText = document.querySelector("#inventarioText");
+        const calizObjeto = document.querySelector("#calizObjeto");
+
+        portal.addEventListener("click", function(){
+            if(indice < textos.length){
+                textoUI.setAttribute("text","value",textos[indice]);
+
+                if(indice === textos.length - 1){
+                    textoUI.setAttribute("text","color","red");
+                    puerta.setAttribute("visible",true); 
+                }
+
+                indice++;
+            }
+        });
+
+        calizObjeto.addEventListener("click", function(){
+            this.setAttribute("visible",false);
+            this.classList.remove("clickable");
+            inventarioPanel.setAttribute("visible",true);
+            inventarioText.setAttribute("value","Caliz");
+            tieneCaliz = true;
+        });
+
+        puerta.addEventListener("click", function(){
+            if(!tieneCaliz) {
+                mensajeAlerta.setAttribute("visible", true);
+
+                setTimeout(() => {
+                    mensajeAlerta.setAttribute("visible", false);
+                }, 3000);
+
+            } else {
+                alert("Puerta abierta con el Cáliz!");
+                puerta.setAttribute("visible", false); 
+            }
+        });
+    </script>
 
 </a-scene>
 </body>
