@@ -2,56 +2,144 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Sala Experimental - Anor Londo</title>
+    <title>Anor Londo</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <style>
+        .quizOverlay {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(10, 10, 10, 0.93);
+            border: 1px solid #555;
+            border-radius: 12px;
+            padding: 28px 32px;
+            z-index: 9999;
+            width: 380px;
+            font-family: serif;
+            color: white;
+            text-align: center;
+        }
+        .quizOverlay h2 {
+            font-size: 16px;
+            color: #FFD700;
+            margin: 0 0 18px 0;
+            line-height: 1.5;
+            letter-spacing: 0.5px;
+        }
+        .quizInput {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 15px;
+            border-radius: 6px;
+            border: 1px solid #888;
+            background: #1a1a1a;
+            color: white;
+            box-sizing: border-box;
+            outline: none;
+            text-align: center;
+            font-family: serif;
+        }
+        .quizInput:focus {
+            border-color: #FFD700;
+        }
+        .quizFeedback {
+            margin-top: 14px;
+            font-size: 14px;
+            min-height: 20px;
+            letter-spacing: 0.3px;
+        }
+        .quizBtn {
+            margin-top: 16px;
+            padding: 9px 28px;
+            background: transparent;
+            border: 1px solid #FFD700;
+            color: #FFD700;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: serif;
+            letter-spacing: 0.5px;
+        }
+        .quizBtn:hover {
+            background: #FFD700;
+            color: #000;
+        }
+
+        #fadeOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: black;
+            z-index: 99999;
+            opacity: 0;
+            transition: opacity 2s ease;
+            pointer-events: none;
+        }
+    </style>
 </head>
 
 <body>
 
-<a-scene>
+<div id="fadeOverlay"></div>
+
+<!-- Quiz Artorias -->
+<div id="quizArtorias" class="quizOverlay">
+    <h2>Quin es el nom del monarca de la flama en Dark Souls?<br>A) Filianore &nbsp; B) Gwyn &nbsp; C) Gwyndolin &nbsp; D) Gwynevere</h2>
+    <input id="quizInputArtorias" class="quizInput" type="text" placeholder="Escriu la teva resposta..." autocomplete="off" />
+    <div id="quizFeedbackArtorias" class="quizFeedback"></div>
+    <button class="quizBtn" onclick="comprovarArtorias()">Confirmar</button>
+</div>
+
+<!-- Quiz Caballero -->
+<div id="quizCaballero" class="quizOverlay">
+    <h2>Quin es el nom de la donzella de la llum de la lluna?<br>A) Ornstein &nbsp; B) Gwynevere &nbsp; C) Gwyndolin &nbsp; D) Anri of Astora</h2>
+    <input id="quizInputCaballero" class="quizInput" type="text" placeholder="Escriu la teva resposta..." autocomplete="off" />
+    <div id="quizFeedbackCaballero" class="quizFeedback"></div>
+    <button class="quizBtn" onclick="comprovarCaballero()">Confirmar</button>
+</div>
+
+<a-scene renderer="colorManagement: true; lightingDataRestriction: false;">
 
     <a-assets>
         <img id="lolbanana" src="IMG/banana.png">
-        <img id="fons" src="IMG/lonod.jpg">
-        
+        <img id="fons"      src="IMG/lonod.jpg">
+
         <audio id="musicaFondo" src="musica/DS3.mp3" preload="auto"></audio>
 
-        <a-asset-item id="modeloBoton" src="modelos/altar.glb"></a-asset-item>
-        <a-asset-item id="londo" src="modelos/anor_londo.glb"></a-asset-item>
-        <a-asset-item id="doorModel" src="modelos/door.glb"></a-asset-item>
-        <a-asset-item id="gabriel" src="modelos/virtue.glb"></a-asset-item>
-        <a-asset-item id="kinght" src="modelos/knight_artorias.glb"></a-asset-item>
-        <a-asset-item id="plataforma" src="modelos/platform.glb"></a-asset-item> 
-        <a-asset-item id="caballero" src="modelos/knight.glb"></a-asset-item>
-        <a-asset-item id="calizModel" src="modelos/caliz.glb"></a-asset-item>
-         <a-asset-item id="boss" src="modelos/boos.glb"></a-asset-item>
+        <a-asset-item id="modeloBoton"    src="modelos/altar.glb"></a-asset-item>
+        <a-asset-item id="londo"          src="modelos/anor_londo.glb"></a-asset-item>
+        <a-asset-item id="doorModel"      src="modelos/door.glb"></a-asset-item>
+        <a-asset-item id="gabriel"        src="modelos/virtue.glb"></a-asset-item>
+        <a-asset-item id="kinght"         src="modelos/knight_artorias.glb"></a-asset-item>
+        <a-asset-item id="plataforma"     src="modelos/platform.glb"></a-asset-item>
+        <a-asset-item id="caballeroModel" src="modelos/knight.glb"></a-asset-item>
+        <a-asset-item id="calizModel"     src="modelos/caliz.glb"></a-asset-item>
+        <a-asset-item id="boss"           src="modelos/boos.glb"></a-asset-item>
+        <a-asset-item id="swordModel"     src="modelos/sword.glb"></a-asset-item>
+        <a-asset-item id="estus"          src="modelos/estus.glb"></a-asset-item>
     </a-assets>
 
-    <a-sky src="#fons"></a-sky>
+    <a-light id="luzAmbiente"    type="ambient"     color="#BBB"    intensity="1.5"></a-light>
+    <a-light id="luzDireccional" type="directional" color="#ffffff" intensity="1.2" position="-1 10 3"></a-light>
+
+    <a-sky id="cel" src="#fons" radius="1400"></a-sky>
 
     <a-entity id="player" position="10 1.6 -165.200" rotation="0 180 0">
         <a-camera wasd-controls="acceleration: 200" look-controls>
-
-            <!-- 🔊 AUDIO GLOBAL (ARREGLADO) -->
-            <a-entity sound="src: #musicaFondo; autoplay: true; loop: true; volume: 4.6; positional: false"></a-entity>
-
+            <a-entity sound="src: #musicaFondo; autoplay: true; loop: true; volume: 3.6; positional: false"></a-entity>
             <a-cursor color="red" raycaster="objects: .clickable"></a-cursor>
 
-            <a-text id="mensajeAlerta" 
-                    value="Faltan objectes per obrir la porta" 
-                    color="red" 
-                    align="center" 
-                    position="0 0 -1" 
-                    scale="0.5 0.5 0.5" 
-                    visible="false">
-            </a-text>
+            <a-text id="mensajeAlerta" value=""
+                color="red" align="center" position="0 0 -1" scale="0.5 0.5 0.5" visible="false"></a-text>
 
             <a-entity id="inventario" visible="false" position="0.8 -0.8 -1.5">
-                <a-plane width="1.0" height="0.4" color="#333" opacity="0.9">
+                <a-plane width="1.0" height="0.6" color="#333" opacity="0.9">
                     <a-text id="inventarioText" value="" align="center" color="yellow" width="0.9" position="0 0 0.01"></a-text>
                 </a-plane>
             </a-entity>
-
         </a-camera>
     </a-entity>
 
@@ -60,28 +148,58 @@
     </a-plane>
 
     <a-plane src="#lolbanana" position="0 5 225" rotation="0 360 0" width="6" height="4"></a-plane>
+
     <a-entity id="portal" class="clickable" gltf-model="#modeloBoton" position="0 -4 218.23" rotation="0 180 0" scale="0.1 0.1 0.1"></a-entity>
 
     <a-entity gltf-model="#londo" position="-2550 -1430.4 -5525" rotation="0 90 0" scale="10 10 10">
-        
-        <a-entity id="puerta" class="clickable" gltf-model="#doorModel" position="-536.794 142.422 255.026" rotation="0 180 0" scale="2.800 1.350 1.360"></a-entity>
 
-        <a-entity id="calizObjeto" class="clickable" gltf-model="#calizModel" position="-575.933 143.172 255.036" rotation="0 90 0" scale="0.2 0.2 0.2"></a-entity>
+        <!-- Porta — NO clickable -->
+        <a-entity id="puerta" gltf-model="#doorModel"
+            position="-536.794 142.422 255.026" rotation="0 180 0" scale="2.800 1.350 1.360"></a-entity>
 
-        <a-entity id="gabrielModel" gltf-model="#gabriel" position="-580.574 145.799 254.767" rotation="0 90 0" scale="3 3 3"></a-entity>
-      
-        <a-entity id="artorias" gltf-model="#kinght" position="-576.321 142.808 266.472" rotation="0 90 0" scale="0.003 0.003 0.003"></a-entity>
-        
-        <a-entity id="caballero" gltf-model="#caballero" position="-575.978 144.561 242.402" rotation="0 90 0" scale="2 2 2"></a-entity>
+        <a-entity id="calizObjeto" class="clickable" gltf-model="#calizModel"
+            position="-579.158 144.228 255.036" rotation="0 90 0" scale="0.2 0.2 0.2"></a-entity>
 
-        <a-entity id="boss" gltf-model="#boss" position="-576.321 142.808 266.472" rotation="0 90 0" scale="0.03 0.03 0.03"></a-entity>
-        
-        <a-light type="ambient" intensity="1.2"></a-light>
+        <a-entity id="gabrielModel" gltf-model="#gabriel"
+            position="-580.574 145.799 254.767" rotation="0 90 0" scale="3 3 3"></a-entity>
+
+        <!-- Artorias -->
+        <a-entity id="artorias" class="clickable" gltf-model="#kinght"
+            position="-576.321 142.808 266.472" rotation="0 90 0" scale="0.003 0.003 0.003">
+            <a-light type="point" intensity="2" distance="10" position="0 5 0"></a-light>
+        </a-entity>
+
+        <!-- Espasa -->
+        <a-entity id="swordObjeto" class="clickable" gltf-model="#swordModel"
+            position="-572.332 142.622 266.534" rotation="0 90 0" scale="0.05 0.05 0.05"
+            visible="false"
+            animation__float="property: position; to: -572.332 143.5 266.534; dur: 2000; dir: alternate; loop: true; easing: easeInOutSine"
+            animation__rotate="property: rotation; to: 0 450 0; dur: 6000; loop: true; easing: linear">
+        </a-entity>
+
+        <!-- Caballero -->
+        <a-entity id="caballero" class="clickable" gltf-model="#caballeroModel"
+            position="-575.978 144.561 242.402" rotation="0 90 0" scale="2 2 2">
+            <a-light type="point" intensity="1.5" distance="8" position="0 3 0"></a-light>
+        </a-entity>
+
+        <!-- Estus -->
+        <a-entity id="estusObjeto" class="clickable" gltf-model="#estus"
+            position="-572.332 142.622 242.402" rotation="0 90 0" scale="10.5 10.5 10.5"       
+            visible="false"
+            animation__float="property: position; to: -572.332 143.5 242.402; dur: 2000; dir: alternate; loop: true; easing: easeInOutSine"
+            animation__rotate="property: rotation; to: 0 450 0; dur: 6000; loop: true; easing: linear">
+        </a-entity>
+
     </a-entity>
 
     <script>
-        let tieneCaliz = false; 
-        let indice = 0;
+        /* ---------- Variables globals ---------- */
+        let tieneCaliz = false;
+        let tieneSword = false;
+        let tieneEstus = false;
+        let esNit      = false;
+        let indice     = 0;
 
         const textos = [
             "Has retornat, ets en Jack o tu jugador as tornat ?.",
@@ -93,47 +211,193 @@
             "Al cap i a la fi, hi ha destins que son molt pitjors que la mort no?."
         ];
 
-        const textoUI = document.querySelector("#texto");
-        const portal = document.querySelector("#portal");
-        const puerta = document.querySelector("#puerta");
-        const mensajeAlerta = document.querySelector("#mensajeAlerta");
+        const textoUI         = document.querySelector("#texto");
+        const portal          = document.querySelector("#portal");
+        const mensajeAlerta   = document.querySelector("#mensajeAlerta");
         const inventarioPanel = document.querySelector("#inventario");
-        const inventarioText = document.querySelector("#inventarioText");
-        const calizObjeto = document.querySelector("#calizObjeto");
+        const inventarioText  = document.querySelector("#inventarioText");
+        const calizObjeto     = document.querySelector("#calizObjeto");
+        const swordObjeto     = document.querySelector("#swordObjeto");
+        const estusObjeto     = document.querySelector("#estusObjeto");
+        const luzAmbiente     = document.querySelector("#luzAmbiente");
+        const luzDireccional  = document.querySelector("#luzDireccional");
+        const cel             = document.querySelector("#cel");
+        const fadeOverlay     = document.getElementById("fadeOverlay");
 
-        portal.addEventListener("click", function(){
-            if(indice < textos.length){
-                textoUI.setAttribute("text","value",textos[indice]);
-
-                if(indice === textos.length - 1){
-                    textoUI.setAttribute("text","color","red");
-                    puerta.setAttribute("visible",true); 
-                }
-
+        /* ---------- Portal ---------- */
+        portal.addEventListener("click", function () {
+            if (tieneCaliz && tieneSword && tieneEstus) {
+                ferDeNit();
+                return;
+            }
+            // Missatge si falta algun objecte
+            if (!tieneCaliz || !tieneSword || !tieneEstus) {
+                mostrarAlerta("Necessites el Caliz, la Sword i l'Estus Flask");
+            }
+            // Textos narratius
+            if (indice < textos.length) {
+                textoUI.setAttribute("text", "value", textos[indice]);
                 indice++;
             }
         });
 
-        calizObjeto.addEventListener("click", function(){
-            this.setAttribute("visible",false);
+        /* ---------- Fer de nit (suau) ---------- */
+        function ferDeNit() {
+            if (esNit) return;
+            esNit = true;
+
+            fadeOverlay.style.display = "block";
+            fadeOverlay.style.opacity = "0";
+            fadeOverlay.getBoundingClientRect();
+            fadeOverlay.style.opacity = "1";
+
+            setTimeout(() => {
+                // Llum ambient — baixa però visible, to blau nocturn
+                luzAmbiente.setAttribute("intensity", "0.55");
+                luzAmbiente.setAttribute("color", "#3a4a6b");
+
+                // Llum direccional — molt reduïda, to lluna
+                luzDireccional.setAttribute("intensity", "0.3");
+                luzDireccional.setAttribute("color", "#6a80b0");
+
+                // Cel fosc però no completament negre
+                cel.setAttribute("color", "#0d1a2e");
+                cel.removeAttribute("src");
+
+                // Treu el fade
+                fadeOverlay.style.opacity = "0";
+                setTimeout(() => {
+                    fadeOverlay.style.display = "none";
+                }, 2000);
+
+            }, 2000);
+        }
+
+        /* ---------- Helpers ---------- */
+        function mostrarAlerta(text) {
+            mensajeAlerta.setAttribute("value", text);
+            mensajeAlerta.setAttribute("visible", true);
+            setTimeout(() => mensajeAlerta.setAttribute("visible", false), 3000);
+        }
+
+        function afegirInventari(item) {
+            const actual = inventarioText.getAttribute("value");
+            const nou = actual && actual !== "" ? actual + "\n" + item : item;
+            inventarioText.setAttribute("value", nou);
+            inventarioPanel.setAttribute("visible", true);
+        }
+
+        function bloquejarCamera() {
+            const cam = document.querySelector("[look-controls]");
+            if (cam) cam.setAttribute("look-controls", "enabled", false);
+        }
+        function desbloquejarcamera() {
+            const cam = document.querySelector("[look-controls]");
+            if (cam) cam.setAttribute("look-controls", "enabled", true);
+        }
+
+        /* ---------- Recollir objectes ---------- */
+        calizObjeto.addEventListener("click", function () {
+            this.setAttribute("visible", false);
             this.classList.remove("clickable");
-            inventarioPanel.setAttribute("visible",true);
-            inventarioText.setAttribute("value","Caliz");
+            afegirInventari("Caliz");
             tieneCaliz = true;
         });
 
-        puerta.addEventListener("click", function(){
-            if(!tieneCaliz) {
-                mensajeAlerta.setAttribute("visible", true);
+        swordObjeto.addEventListener("click", function () {
+            if (tieneSword) return;
+            tieneSword = true;
+            this.setAttribute("visible", false);
+            this.classList.remove("clickable");
+            afegirInventari("Sword");
+        });
 
+        estusObjeto.addEventListener("click", function () {
+            if (tieneEstus) return;
+            tieneEstus = true;
+            this.setAttribute("visible", false);
+            this.classList.remove("clickable");
+            afegirInventari("Estus Flask");
+        });
+
+        /* ===== QUIZ ARTORIAS ===== */
+        const artorias             = document.querySelector("#artorias");
+        const quizArtoriasOverlay  = document.getElementById("quizArtorias");
+        const quizInputArtorias    = document.getElementById("quizInputArtorias");
+        const quizFeedbackArtorias = document.getElementById("quizFeedbackArtorias");
+
+        artorias.addEventListener("click", function () {
+            if (tieneSword) return;
+            quizInputArtorias.value = "";
+            quizFeedbackArtorias.textContent = "";
+            quizFeedbackArtorias.style.color = "white";
+            quizArtoriasOverlay.style.display = "block";
+            bloquejarCamera();
+            setTimeout(() => quizInputArtorias.focus(), 100);
+        });
+
+        function comprovarArtorias() {
+            const r = quizInputArtorias.value.trim().toLowerCase();
+            if (r === "gwyn" || r === "b" || r === "b) gwyn" ||
+                r === "gwyn lord of cinder" || r === "lord gwyn") {
+                quizFeedbackArtorias.style.color = "#00FF88";
+                quizFeedbackArtorias.textContent = "Correcte! Gwyn, Lord of Cinder!";
                 setTimeout(() => {
-                    mensajeAlerta.setAttribute("visible", false);
-                }, 3000);
-
+                    quizArtoriasOverlay.style.display = "none";
+                    desbloquejarcamera();
+                    swordObjeto.setAttribute("visible", true);
+                }, 1800);
+            } else if (r === "") {
+                quizFeedbackArtorias.style.color = "#aaa";
+                quizFeedbackArtorias.textContent = "Escriu una resposta.";
             } else {
-                alert("Puerta abierta con el Cáliz!");
-                puerta.setAttribute("visible", false); 
+                quizFeedbackArtorias.style.color = "red";
+                quizFeedbackArtorias.textContent = "Incorrecte. Torna-ho a intentar.";
             }
+        }
+
+        quizInputArtorias.addEventListener("keydown", e => {
+            if (e.key === "Enter") comprovarArtorias();
+        });
+
+        /* ===== QUIZ CABALLERO ===== */
+        const caballero             = document.querySelector("#caballero");
+        const quizCaballeroOverlay  = document.getElementById("quizCaballero");
+        const quizInputCaballero    = document.getElementById("quizInputCaballero");
+        const quizFeedbackCaballero = document.getElementById("quizFeedbackCaballero");
+
+        caballero.addEventListener("click", function () {
+            if (tieneEstus) return;
+            quizInputCaballero.value = "";
+            quizFeedbackCaballero.textContent = "";
+            quizFeedbackCaballero.style.color = "white";
+            quizCaballeroOverlay.style.display = "block";
+            bloquejarCamera();
+            setTimeout(() => quizInputCaballero.focus(), 100);
+        });
+
+        function comprovarCaballero() {
+            const r = quizInputCaballero.value.trim().toLowerCase();
+            if (r === "gwyndolin" || r === "c" || r === "c) gwyndolin" ||
+                r === "dark sun gwyndolin" || r === "gwyndoline") {
+                quizFeedbackCaballero.style.color = "#00FF88";
+                quizFeedbackCaballero.textContent = "Correcte! Gwyndolin, Dark Sun!";
+                setTimeout(() => {
+                    quizCaballeroOverlay.style.display = "none";
+                    desbloquejarcamera();
+                    estusObjeto.setAttribute("visible", true);
+                }, 1800);
+            } else if (r === "") {
+                quizFeedbackCaballero.style.color = "#aaa";
+                quizFeedbackCaballero.textContent = "Escriu una resposta.";
+            } else {
+                quizFeedbackCaballero.style.color = "red";
+                quizFeedbackCaballero.textContent = "Incorrecte. Torna-ho a intentar.";
+            }
+        }
+
+        quizInputCaballero.addEventListener("keydown", e => {
+            if (e.key === "Enter") comprovarCaballero();
         });
     </script>
 
