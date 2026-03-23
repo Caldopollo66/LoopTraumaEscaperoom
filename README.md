@@ -9,9 +9,9 @@
 
 | Recurs | Enllaç |
 |--------|--------|
-| 📄 Documentació (Google Drive) | [Veure document](https://docs.google.com/document/d/1nniBZNZ_fGzI72PQ6o1iP-KDDM5hicbERVUFDCEpypw/edit?usp=sharing) |
+| 📄 Documentació (Google Drive) | [Veure document](https://docs.google.com/document/d/14QCYCltV7wl7Vq5oCyV_yfjZzVY3cZst/edit?usp=sharing&ouid=105788036166757991742&rtpof=true&sd=true) |
 | 📊 Planificació temporal (Excel) | _Afegir URL de l'Excel aquí_ |
-| 🎮 Jugar ara (pàgina d'inici) | [Iniciar el joc](https://caldopollo66.github.io/LoopTraumaEscaperoom/intro.html) |
+| 🎮 Jugar ara (pàgina d'inici) | [Iniciar el joc](https://caldopollo66.github.io/LoopTraumaEscaperoom/menu.html) |
 
 ---
 
@@ -158,6 +158,6 @@ Projecte educatiu. Els models 3D i la música poden estar subjectes a drets de t
 **Loop Trauma** · Escape Room 3D · 2024–2025  
 Fet amb ❤️ i A-Frame
 
-[🎮 Jugar ara](https://caldopollo66.github.io/LoopTraumaEscaperoom/intro.html) · [📄 Documentació](https://docs.google.com/document/d/1nniBZNZ_fGzI72PQ6o1iP-KDDM5hicbERVUFDCEpypw/edit?usp=sharing) · [🐙 GitHub](https://github.com/Caldopollo66/LoopTraumaEscaperoom)
+[🎮 Jugar ara](https://caldopollo66.github.io/LoopTraumaEscaperoom/intro.html) · [📄 Documentació(/https://docs.google.com/document/d/14QCYCltV7wl7Vq5oCyV_yfjZzVY3cZst/edit?usp=sharing&ouid=105788036166757991742&rtpof=true&sd=true) · [🐙 GitHub](https://github.com/Caldopollo66/LoopTraumaEscaperoom)
 
 </div>
