@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>LoopTrauma - Sala Boss</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; overflow: hidden; }
+
+    /* ===== HUD ===== */
+    #hud {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 999;
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    /* Scanlines */
+    #hud::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.06) 2px, rgba(0,0,0,0.06) 4px);
+      pointer-events: none;
+    }
+
+    /* Vignette */
+    #vignette {
+      position: fixed; inset: 0;
+      background: radial-gradient(ellipse at center, transparent 45%, rgba(0,0,0,0.75) 100%);
+      pointer-events: none;
+      z-index: 998;
+    }
+
+    /* Boss name banner */
+    #boss-banner {
+      position: absolute;
+      bottom: 120px; left: 50%; transform: translateX(-50%);
+      text-align: center;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    #boss-banner.visible { opacity: 1; }
+    #boss-title {
+      font-family: 'Cinzel', serif;
+      font-size: 2.2em;
+      font-weight: 900;
+      color: #d4af37;
+      text-shadow: 0 0 30px rgba(212,175,55,0.8), 0 2px 4px rgba(0,0,0,0.9);
+      letter-spacing: 6px;
+      text-transform: uppercase;
+    }
+    #boss-subtitle {
+      font-family: 'Cinzel', serif;
+      font-size: 0.9em;
+      color: rgba(212,175,55,0.55);
+      letter-spacing: 8px;
+      margin-top: 4px;
+    }
+
+    /* Boss HP bar */
+    #boss-hp-wrap {
+      position: absolute;
+      bottom: 60px; left: 50%; transform: translateX(-50%);
+      width: 600px; max-width: 90vw;
+      text-align: center;
+    }
+    #boss-hp-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.75em;
+      color: #d4af37;
+      letter-spacing: 4px;
+      margin-bottom: 6px;
+    }
+    .hp-bar-bg {
+      width: 100%; height: 14px;
+      background: rgba(30,10,0,0.85);
+      border: 1px solid #d4af37;
+      box-shadow: 0 0 18px rgba(212,175,55,0.35), inset 0 1px 4px rgba(0,0,0,0.6);
+    }
+    #bossBar {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #8b0000, #cc2200, #ff4400);
+      transition: width 0.15s ease;
+      box-shadow: 0 0 8px rgba(255,68,0,0.6);
+    }
+
+    /* Player HP */
+    #player-hp-wrap {
+      position: absolute;
+      top: 28px; left: 32px;
+    }
+    #playerLife {
+      font-family: 'Cinzel', serif;
+      font-size: 1.6em;
+      color: #ff4444;
+      text-shadow: 0 0 12px rgba(255,0,0,0.7);
+      letter-spacing: 3px;
+    }
+    .player-bar-bg {
+      width: 180px; height: 10px;
+      background: rgba(30,0,0,0.7);
+      border: 1px solid rgba(255,0,0,0.4);
+      margin-top: 6px;
+    }
+    #playerBar {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #ff0000, #880000);
+      transition: width 0.15s;
+    }
+
+    /* Phase mode */
+    #modeText {
+      position: absolute;
+      top: 28px; right: 32px;
+      font-family: 'Cinzel', serif;
+      font-size: 0.8em;
+      color: #d4af37;
+      letter-spacing: 3px;
+      text-align: right;
+      text-shadow: 0 0 10px rgba(212,175,55,0.5);
+      text-transform: uppercase;
+    }
+    #modeText span {
+      display: block;
+      font-size: 0.7em;
+      color: rgba(212,175,55,0.45);
+      letter-spacing: 5px;
+    }
+
+    /* Damage flash */
+    #damage-flash {
+      position: fixed; inset: 0;
+      background: rgba(180,0,0,0);
+      pointer-events: none;
+      z-index: 1001;
+      transition: background 0.08s ease;
+    }
+    #damage-flash.hit {
+      background: rgba(180,0,0,0.35);
+    }
+
+    /* Death / Win screen */
+    #endScreen {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 2000;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cinzel', serif;
+      color: #d4af37;
+      text-align: center;
+      pointer-events: all;
+    }
+    #endScreen.show { display: flex; }
+    #endTitle {
+      font-size: 3.5em;
+      font-weight: 900;
+      letter-spacing: 8px;
+      text-shadow: 0 0 40px rgba(212,175,55,0.9);
+      animation: breathe 2s ease-in-out infinite;
+    }
+    #endSub { font-size: 1em; color: rgba(212,175,55,0.5); letter-spacing: 5px; margin-top: 16px; }
+    #endBtn {
+      margin-top: 48px;
+      padding: 14px 48px;
+      border: 1px solid #d4af37;
+      background: transparent;
+      color: #d4af37;
+      font-family: 'Cinzel', serif;
+      font-size: 1em;
+      letter-spacing: 4px;
+      cursor: pointer;
+      pointer-events: all;
+      transition: all 0.3s;
+    }
+    #endBtn:hover { background: #d4af37; color: #000; }
+
+    @keyframes breathe {
+      0%, 100% { text-shadow: 0 0 30px rgba(212,175,55,0.6); }
+      50% { text-shadow: 0 0 60px rgba(212,175,55,1), 0 0 100px rgba(255,100,0,0.4); }
+    }
+
+    /* Corner decoration */
+    .corner {
+      position: absolute;
+      width: 50px; height: 50px;
+      border-color: rgba(212,175,55,0.4);
+      border-style: solid;
+    }
+    .corner-tl { top: 16px; left: 16px; border-width: 1px 0 0 1px; }
+    .corner-tr { top: 16px; right: 16px; border-width: 1px 1px 0 0; }
+    .corner-bl { bottom: 16px; left: 16px; border-width: 0 0 1px 1px; }
+    .corner-br { bottom: 16px; right: 16px; border-width: 0 1px 1px 0; }
+  </style>
+</head>
+<body>
+
+<!-- UI overlays -->
+<div id="vignette"></div>
+<div id="damage-flash"></div>
+
+<div id="hud">
+  <div class="corner corner-tl"></div>
+  <div class="corner corner-tr"></div>
+  <div class="corner corner-bl"></div>
+  <div class="corner corner-br"></div>
+
+  <!-- Player HP -->
+  <div id="player-hp-wrap">
+    <div id="playerLife">❤ ❤ ❤</div>
+    <div class="player-bar-bg"><div id="playerBar"></div></div>
+  </div>
+
+  <!-- Phase -->
+  <div id="modeText">
+    <span>FASE ACTUAL</span>
+    ANIQUILACIÓ
+  </div>
+
+  <!-- Boss HP bar -->
+  <div id="boss-hp-wrap">
+    <div id="boss-hp-label">CORRUPCIÓ</div>
+    <div class="hp-bar-bg"><div id="bossBar"></div></div>
+  </div>
+
+  <!-- Boss banner -->
+  <div id="boss-banner">
+    <div id="boss-title">CORRUPCIÓ</div>
+    <div id="boss-subtitle">L'ABISME CRIDA</div>
+  </div>
+</div>
+
+<!-- End screen -->
+<div id="endScreen">
+  <div id="endTitle">HAS MORT</div>
+  <div id="endSub">EL FOC S'APAGA</div>
+  <button id="endBtn" onclick="location.reload()">TORNAR A INTENTAR</button>
+</div>
+
+<!-- ===== A-FRAME ===== -->
+<a-assets>
+  <img id="fons" src="IMG/lonod.jpg">
+  <audio id="musicaFondo" src="musica/DS3.mp3" preload="auto"></audio>
+  <a-asset-item id="londo"     src="modelos/anor_londo.glb"></a-asset-item>
+  <a-asset-item id="bossModel" src="modelos/boos.glb"></a-asset-item>
+</a-assets>
+
+<a-scene background="color: #06080a" fog="type: linear; color: #06080a; near: 8; far: 50"
+         renderer="colorManagement: true">
+
+  <!-- Lights -->
+  <a-light type="ambient"     color="#1a1010" intensity="1.2"></a-light>
+  <a-light type="directional" color="#ff6633" intensity="0.6" position="-1 8 -5"></a-light>
+  <a-light type="point"       color="#ff2200" intensity="3"   position="0 4 -18" distance="30" id="bossLight"></a-light>
+  <a-light type="point"       color="#330011" intensity="1.5" position="0 1.6 0" distance="20"></a-light>
+
+  <!-- Sky (Anor Londo exterior texture) -->
+  <a-sky src="#fons" radius="1400" rotation="0 -90 0"></a-sky>
+
+  <!-- Music -->
+  <a-entity sound="src: #musicaFondo; autoplay: true; loop: true; volume: 2.5; positional: false"
+            position="0 0 0"></a-entity>
+
+  <!-- ===== ANOR LONDO SCENARIO ===== -->
+  <a-entity gltf-model="#londo"
+            position="-2550 -1430.4 -5525"
+            rotation="0 90 0"
+            scale="10 10 10">
+  </a-entity>
+
+  <!-- Floor (arena) -->
+  <a-plane rotation="-90 0 0" width="40" height="40" position="0 0 -10"
+           color="#0a0806" metalness="0.6" roughness="0.5">
+  </a-plane>
+  <!-- Floor grid lines -->
+  <a-entity position="0 0.02 -10">
+    <a-plane rotation="-90 0 0" width="40" height="0.03" color="#2a1500" opacity="0.5" position="0 0 -6"></a-plane>
+    <a-plane rotation="-90 0 0" width="40" height="0.03" color="#2a1500" opacity="0.5" position="0 0 -2"></a-plane>
+    <a-plane rotation="-90 0 0" width="40" height="0.03" color="#2a1500" opacity="0.5" position="0 0 2"></a-plane>
+    <a-plane rotation="-90 0 0" width="40" height="0.03" color="#2a1500" opacity="0.5" position="0 0 6"></a-plane>
+    <a-plane rotation="-90 90 0" width="40" height="0.03" color="#2a1500" opacity="0.5" position="-6 0 0"></a-plane>
+    <a-plane rotation="-90 90 0" width="40" height="0.03" color="#2a1500" opacity="0.5" position="-2 0 0"></a-plane>
+    <a-plane rotation="-90 90 0" width="40" height="0.03" color="#2a1500" opacity="0.5" position="2 0 0"></a-plane>
+    <a-plane rotation="-90 90 0" width="40" height="0.03" color="#2a1500" opacity="0.5" position="6 0 0"></a-plane>
+  </a-entity>
+
+  <!-- Embers / atmosphere particles -->
+  <a-sphere position="-5 1.5 -12" radius="0.04" color="#ff4400" opacity="0.8" material="shader:flat"
+    animation="property: position; to: -4.5 3 -12; dur: 3000; dir: alternate; loop: true; easing: easeInOutSine"></a-sphere>
+  <a-sphere position="4 2 -15" radius="0.03" color="#ff6600" opacity="0.7" material="shader:flat"
+    animation="property: position; to: 4.8 3.5 -15; dur: 2400; dir: alternate; loop: true; easing: easeInOutSine"></a-sphere>
+  <a-sphere position="-2 3 -20" radius="0.05" color="#ff2200" opacity="0.5" material="shader:flat"
+    animation="property: position; to: -1.5 4 -20; dur: 3600; dir: alternate; loop: true; easing: easeInOutSine"></a-sphere>
+  <a-sphere position="6 1 -10" radius="0.03" color="#ffaa00" opacity="0.6" material="shader:flat"
+    animation="property: position; to: 5.5 2.5 -10; dur: 2000; dir: alternate; loop: true; easing: easeInOutSine"></a-sphere>
+
+  <!-- ===== PLAYER ===== -->
+  <a-entity id="player" position="0 0 7">
+    <a-camera id="mainCam"
+              wasd-controls="acceleration: 80"
+              look-controls="pointerLockEnabled: true">
+      <a-cursor color="#d4af37"
+                fuse="false"
+                raycaster="far: 30">
+      </a-cursor>
+    </a-camera>
+  </a-entity>
+
+  <!-- ===== BOSS (boos.glb, replaces red cube) ===== -->
+  <a-entity id="boss" position="0 0 -18" boss-logic>
+    <!-- GLB model, scaled/offset so it stands on the floor -->
+    <a-entity id="bossGLB"
+              gltf-model="#bossModel"
+              scale="0.008 0.008 0.008"
+              position="0 0 0"
+              rotation="0 180 0"
+              animation__rot="property: rotation; to: 0 540 0; dur: 8000; loop: true; easing: linear">
+    </a-entity>
+    <!-- Aura glow around boss -->
+    <a-sphere radius="2.5" color="#ff2200" opacity="0.08" material="shader:flat"
+      animation="property: scale; to: 1.3 1.3 1.3; dir: alternate; dur: 1500; loop: true; easing: easeInOutSine">
+    </a-sphere>
+    <a-light type="point" color="#ff4400" intensity="4" distance="12" id="bossAura"></a-light>
+  </a-entity>
+
+</a-scene>
+
+<!-- ===== SCRIPTS ===== -->
+<script>
+  /* ---- State ---- */
+  let bossHP      = 100;
+  let playerHP    = 3;
+  let isInvincible = false;
+  let attackMode  = 0;
+  let bossAlive   = true;
+
+  const MAX_PLAYER_HP = 3;
+
+  const bossBarEl    = document.getElementById("bossBar");
+  const playerBarEl  = document.getElementById("playerBar");
+  const playerLifeEl = document.getElementById("playerLife");
+  const modeTextEl   = document.getElementById("modeText");
+  const endScreen    = document.getElementById("endScreen");
+  const endTitle     = document.getElementById("endTitle");
+  const endSub       = document.getElementById("endSub");
+  const damageFlash  = document.getElementById("damage-flash");
+  const cameraEl     = document.getElementById("mainCam");
+
+  /* Show boss banner on load */
+  window.addEventListener('load', function() {
+    setTimeout(() => {
+      document.getElementById('boss-banner').classList.add('visible');
+      setTimeout(() => {
+        document.getElementById('boss-banner').classList.remove('visible');
+      }, 4000);
+    }, 1500);
+  });
+
+  /* =========================================
+     BOSS LOGIC COMPONENT
+  ========================================= */
+  AFRAME.registerComponent('boss-logic', {
+    init: function () {
+      this.timer       = 0;
+      this.phaseTimer  = 0;
+      this.angleOffset = 0;
+      this.dir         = 1;
+      this.baseZ       = -18;
+    },
+
+    tick: function (t, dt) {
+      if (!bossAlive) return;
+
+      this.timer      += dt;
+      this.phaseTimer += dt;
+
+      /* --- Lateral movement (faster as HP drops) --- */
+      const speedMult = 1 + (1 - bossHP / 100) * 1.8;
+      const pos = this.el.object3D.position;
+      pos.x += this.dir * 0.06 * speedMult * (dt / 16);
+      if (Math.abs(pos.x) > 9) this.dir *= -1;
+
+      /* --- Phase change every 4s --- */
+      if (this.phaseTimer > 4000) {
+        attackMode = (attackMode + 1) % 5;
+        this.phaseTimer = 0;
+        const noms = ["ANELLS DOBLES", "ASPES CREUADES", "CAÇA PESADA", "PLUJA DEL CAOS", "MUR TOTAL"];
+        modeTextEl.innerHTML = '<span>FASE ACTUAL</span>' + noms[attackMode];
+        // Pulse boss aura on phase change
+        const aura = document.getElementById('bossAura');
+        if (aura) { aura.setAttribute('intensity', 8); setTimeout(() => aura.setAttribute('intensity', 4), 300); }
+      }
+
+      /* --- Fire rate (mode 1 = fast spiral) --- */
+      const fireRate = attackMode === 1 ? 80 : 420;
+      if (this.timer > fireRate) {
+        this.executeAttack();
+        this.timer = 0;
+      }
+
+      /* --- Passive HP drain (boss "energy") --- */
+      if (bossHP > 0) {
+        bossHP -= 0.05 * (dt / 16);
+        bossBarEl.style.width = Math.max(0, bossHP) + "%";
+        if (bossHP <= 0) {
+          bossHP = 0;
+          this.onBossDie();
+        }
+      }
+    },
+
+    executeAttack: function () {
+      const pPos = new THREE.Vector3();
+      cameraEl.object3D.getWorldPosition(pPos);
+      const bPos = this.el.object3D.position;
+      const toPlayer = Math.atan2(pPos.x - bPos.x, pPos.z - bPos.z);
+
+      switch (attackMode) {
+        case 0: // Double rings
+          this.shootRing(14, 0.18, "#ff0044");
+          this.shootRing(14, 0.12, "#cc0022", Math.PI / 14);
+          break;
+        case 1: // Twin spirals
+          this.angleOffset += 0.55;
+          this.createBullet(this.angleOffset,           0.22, "#00eeff");
+          this.createBullet(-this.angleOffset,          0.22, "#00eeff");
+          this.createBullet(this.angleOffset + Math.PI, 0.22, "#0077ff");
+          break;
+        case 2: // Fan toward player
+          for (let i = -2; i <= 2; i++)
+            this.createBullet(toPlayer + i * 0.22, 0.28, "#ffe033");
+          break;
+        case 3: // Wide scatter
+          this.createBullet(toPlayer + 1.4,  0.18, "#ffffff");
+          this.createBullet(toPlayer - 1.4,  0.18, "#ffffff");
+          this.createBullet(toPlayer + 0.7,  0.20, "#dddddd");
+          this.createBullet(toPlayer - 0.7,  0.20, "#dddddd");
+          break;
+        case 4: // Wall
+          for (let i = 0; i < 9; i++)
+            this.createBullet((i * 0.38) + toPlayer - 1.7, 0.14, "#ff5500");
+          break;
+      }
+    },
+
+    shootRing: function (count, speed, color, offset = 0) {
+      for (let i = 0; i < count; i++)
+        this.createBullet(i * (Math.PI * 2 / count) + offset, speed, color);
+    },
+
+    createBullet: function (angle, speed, color) {
+      const bullet = document.createElement('a-sphere');
+      bullet.setAttribute('radius', '0.38');
+      bullet.setAttribute('color', color);
+      bullet.setAttribute('material', `shader: flat; color: ${color}; emissive: ${color}; emissiveIntensity: 2`);
+      bullet.setAttribute('position', {
+        x: this.el.object3D.position.x,
+        y: 1.2,
+        z: this.el.object3D.position.z
+      });
+      bullet.setAttribute('bullet-move', { vx: Math.sin(angle) * speed, vz: Math.cos(angle) * speed });
+      this.el.sceneEl.appendChild(bullet);
+    },
+
+    onBossDie: function () {
+      bossAlive = false;
+      const gltf = document.getElementById('bossGLB');
+      if (gltf) {
+        gltf.setAttribute('animation__die', 'property: scale; to: 0 0 0; dur: 1200; easing: easeInBack');
+      }
+      setTimeout(() => {
+        endTitle.textContent = "VICTÒRIA";
+        endSub.textContent   = "EL FOC CREMA DE NOU";
+        endScreen.classList.add('show');
+      }, 1400);
+    }
+  });
+
+  /* =========================================
+     BULLET MOVEMENT COMPONENT
+  ========================================= */
+  AFRAME.registerComponent('bullet-move', {
+    schema: { vx: { type: 'number' }, vz: { type: 'number' } },
+    init: function () {
+      this.pVec = new THREE.Vector3();
+      this.bVec = new THREE.Vector3();
+      this.life = 0;
+    },
+    tick: function (time, dt) {
+      if (!bossAlive) {
+        if (this.el.parentNode) this.el.parentNode.removeChild(this.el);
+        return;
+      }
+
+      this.life += dt;
+
+      const pos = this.el.object3D.position;
+      pos.x += this.data.vx * (dt / 16);
+      pos.z += this.data.vz * (dt / 16);
+
+      cameraEl.object3D.getWorldPosition(this.pVec);
+      this.el.object3D.getWorldPosition(this.bVec);
+
+      const distXZ = Math.hypot(this.pVec.x - this.bVec.x, this.pVec.z - this.bVec.z);
+      const distY  = Math.abs(this.pVec.y - this.bVec.y);
+
+      /* Hit detection */
+      if (distXZ < 0.9 && !isInvincible && distY < 1.4) {
+        takeDamage();
+        if (this.el.parentNode) this.el.parentNode.removeChild(this.el);
+        return;
+      }
+
+      /* Cull far / old bullets */
+      if (this.bVec.distanceTo(this.pVec) > 45 || this.life > 12000) {
+        if (this.el.parentNode) this.el.parentNode.removeChild(this.el);
+      }
+    }
+  });
+
+  /* =========================================
+     DAMAGE SYSTEM
+  ========================================= */
+  function takeDamage() {
+    if (isInvincible || !bossAlive) return;
+    playerHP--;
+    isInvincible = true;
+
+    /* Update hearts */
+    let hearts = "";
+    for (let i = 0; i < playerHP; i++) hearts += "❤ ";
+    playerLifeEl.textContent = hearts.trim() || "✝";
+    playerBarEl.style.width  = Math.max(0, (playerHP / MAX_PLAYER_HP) * 100) + "%";
+
+    /* Screen flash */
+    damageFlash.classList.add('hit');
+    setTimeout(() => damageFlash.classList.remove('hit'), 140);
+
+    if (playerHP <= 0) {
+      setTimeout(() => {
+        endTitle.textContent = "HAS MORT";
+        endSub.textContent   = "EL FOC S'APAGA";
+        endScreen.classList.add('show');
+      }, 200);
+    } else {
+      setTimeout(() => { isInvincible = false; }, 700);
+    }
+  }
+</script>
+</body>
+</html>

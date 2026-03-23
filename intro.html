@@ -41,9 +41,7 @@
             text-align: center;
             font-family: serif;
         }
-        .quizInput:focus {
-            border-color: #FFD700;
-        }
+        .quizInput:focus { border-color: #FFD700; }
         .quizFeedback {
             margin-top: 14px;
             font-size: 14px;
@@ -62,9 +60,27 @@
             font-family: serif;
             letter-spacing: 0.5px;
         }
-        .quizBtn:hover {
-            background: #FFD700;
-            color: #000;
+        .quizBtn:hover { background: #FFD700; color: #000; }
+
+        #contador {
+            position: fixed;
+            top: 18px;
+            left: 18px;
+            z-index: 8888;
+            background: rgba(0,0,0,0.72);
+            border: 1px solid #FFD700;
+            border-radius: 8px;
+            padding: 8px 18px;
+            font-family: serif;
+            font-size: 15px;
+            color: #FFD700;
+            letter-spacing: 1px;
+            pointer-events: none;
+            transition: color 0.4s;
+        }
+        #contador.complet {
+            color: #00FF88;
+            border-color: #00FF88;
         }
 
         #fadeOverlay {
@@ -84,6 +100,7 @@
 <body>
 
 <div id="fadeOverlay"></div>
+<div id="contador">Objectes: 0 / 3</div>
 
 <!-- Quiz Artorias -->
 <div id="quizArtorias" class="quizOverlay">
@@ -107,7 +124,8 @@
         <img id="lolbanana" src="IMG/banana.png">
         <img id="fons"      src="IMG/lonod.jpg">
 
-        <audio id="musicaFondo" src="musica/DS3.mp3" preload="auto"></audio>
+        <audio id="musicaFondo"  src="musica/DS3.mp3"     preload="auto"></audio>
+        <audio id="musicaDialeg" src="musica/Dialogo.mp3" preload="auto"></audio>
 
         <a-asset-item id="modeloBoton"    src="modelos/altar.glb"></a-asset-item>
         <a-asset-item id="londo"          src="modelos/anor_londo.glb"></a-asset-item>
@@ -129,7 +147,9 @@
 
     <a-entity id="player" position="10 1.6 -165.200" rotation="0 180 0">
         <a-camera wasd-controls="acceleration: 200" look-controls>
-            <a-entity sound="src: #musicaFondo; autoplay: true; loop: true; volume: 3.6; positional: false"></a-entity>
+            <a-entity id="sonidoFondo"  sound="src: #musicaFondo;  autoplay: true;  loop: true;  volume: 3.6; positional: false"></a-entity>
+            <a-entity id="sonidoDialeg" sound="src: #musicaDialeg; autoplay: false; loop: false; volume: 4.0; positional: false"></a-entity>
+
             <a-cursor color="red" raycaster="objects: .clickable"></a-cursor>
 
             <a-text id="mensajeAlerta" value=""
@@ -148,14 +168,18 @@
     </a-plane>
 
     <a-plane src="#lolbanana" position="0 5 225" rotation="0 360 0" width="6" height="4"></a-plane>
-
     <a-entity id="portal" class="clickable" gltf-model="#modeloBoton" position="0 -4 218.23" rotation="0 180 0" scale="0.1 0.1 0.1"></a-entity>
 
     <a-entity gltf-model="#londo" position="-2550 -1430.4 -5525" rotation="0 90 0" scale="10 10 10">
 
-        <!-- Porta — NO clickable -->
-        <a-entity id="puerta" gltf-model="#doorModel"
-            position="-536.794 142.422 255.026" rotation="0 180 0" scale="2.800 1.350 1.360"></a-entity>
+        <!-- PORTA — invisible fins que es fa de nit -->
+        <a-entity id="puerta"
+            gltf-model="#doorModel"
+            position="-536.794 142.422 255.026"
+            rotation="0 180 0"
+            scale="2.800 1.350 1.360"
+            visible="false">
+        </a-entity>
 
         <a-entity id="calizObjeto" class="clickable" gltf-model="#calizModel"
             position="-579.158 144.228 255.036" rotation="0 90 0" scale="0.2 0.2 0.2"></a-entity>
@@ -185,21 +209,28 @@
 
         <!-- Estus -->
         <a-entity id="estusObjeto" class="clickable" gltf-model="#estus"
-            position="-572.332 142.622 242.402" rotation="0 90 0" scale="10.5 10.5 10.5"       
+            position="-572.332 142.622 242.402" rotation="0 90 0" scale="10.5 10.5 10.5"
             visible="false"
             animation__float="property: position; to: -572.332 143.5 242.402; dur: 2000; dir: alternate; loop: true; easing: easeInOutSine"
             animation__rotate="property: rotation; to: 0 450 0; dur: 6000; loop: true; easing: linear">
         </a-entity>
 
+        <!-- Boss -->
+        <a-entity id="bossModel" gltf-model="#boss"
+            position="-555.0 142.5 255.0" rotation="0 270 0" scale="2 2 2"
+            visible="false">
+        </a-entity>
+
     </a-entity>
 
     <script>
-        /* ---------- Variables globals ---------- */
-        let tieneCaliz = false;
-        let tieneSword = false;
-        let tieneEstus = false;
-        let esNit      = false;
-        let indice     = 0;
+        let tieneCaliz  = false;
+        let tieneSword  = false;
+        let tieneEstus  = false;
+        let esNit       = false;
+        let dialogFet   = false;
+        let indice      = 0;
+        let numObjectes = 0;
 
         const textos = [
             "Has retornat, ets en Jack o tu jugador as tornat ?.",
@@ -223,25 +254,37 @@
         const luzDireccional  = document.querySelector("#luzDireccional");
         const cel             = document.querySelector("#cel");
         const fadeOverlay     = document.getElementById("fadeOverlay");
+        const puerta          = document.querySelector("#puerta");
+        const bossModel       = document.querySelector("#bossModel");
+        const sonidoFondo     = document.querySelector("#sonidoFondo");
+        const sonidoDialeg    = document.querySelector("#sonidoDialeg");
+        const contador        = document.getElementById("contador");
 
-        /* ---------- Portal ---------- */
+        /* ---------- Comptador ---------- */
+        function actualitzarComptador() {
+            numObjectes++;
+            if (numObjectes >= 3) {
+                contador.textContent = "Objectes: 3 / 3  ✓";
+                contador.classList.add("complet");
+            } else {
+                contador.textContent = "Objectes: " + numObjectes + " / 3";
+            }
+        }
+
+        /* ---------- Portal / altar ---------- */
         portal.addEventListener("click", function () {
             if (tieneCaliz && tieneSword && tieneEstus) {
                 ferDeNit();
                 return;
             }
-            // Missatge si falta algun objecte
-            if (!tieneCaliz || !tieneSword || !tieneEstus) {
-                mostrarAlerta("Necessites el Caliz, la Sword i l'Estus Flask");
-            }
-            // Textos narratius
+            mostrarAlerta("Necessites el Caliz, la Sword i l'Estus Flask");
             if (indice < textos.length) {
                 textoUI.setAttribute("text", "value", textos[indice]);
                 indice++;
             }
         });
 
-        /* ---------- Fer de nit (suau) ---------- */
+        /* ---------- Fer de nit ---------- */
         function ferDeNit() {
             if (esNit) return;
             esNit = true;
@@ -252,32 +295,54 @@
             fadeOverlay.style.opacity = "1";
 
             setTimeout(() => {
-                // Llum ambient — baixa però visible, to blau nocturn
+                // Llums nocturnes
                 luzAmbiente.setAttribute("intensity", "0.55");
                 luzAmbiente.setAttribute("color", "#3a4a6b");
-
-                // Llum direccional — molt reduïda, to lluna
                 luzDireccional.setAttribute("intensity", "0.3");
                 luzDireccional.setAttribute("color", "#6a80b0");
-
-                // Cel fosc però no completament negre
                 cel.setAttribute("color", "#0d1a2e");
                 cel.removeAttribute("src");
 
-                // Treu el fade
+                // Apareix el boss i la porta
+                bossModel.setAttribute("visible", true);
+                puerta.setAttribute("visible", true);
+
+                // Canvi de música
+                sonidoFondo.components.sound.stopSound();
+                sonidoDialeg.components.sound.playSound();
+
+                // Quan acaba el diàleg → porta clickable
+                const audioEl = document.querySelector("#musicaDialeg");
+                audioEl.addEventListener("ended", function onDialegEnd() {
+                    audioEl.removeEventListener("ended", onDialegEnd);
+                    dialogFet = true;
+                    puerta.classList.add("clickable");
+                    mostrarAlerta("La porta s'ha obert...");
+                });
+
                 fadeOverlay.style.opacity = "0";
-                setTimeout(() => {
-                    fadeOverlay.style.display = "none";
-                }, 2000);
+                setTimeout(() => { fadeOverlay.style.display = "none"; }, 2000);
 
             }, 2000);
         }
+
+        /* ---------- Porta → sala_jefe.html ---------- */
+        puerta.addEventListener("click", function () {
+            if (!dialogFet) return;
+            fadeOverlay.style.display = "block";
+            fadeOverlay.style.opacity = "0";
+            fadeOverlay.getBoundingClientRect();
+            fadeOverlay.style.opacity = "1";
+            setTimeout(() => {
+                window.location.href = "sala_jefe.html";
+            }, 2000);
+        });
 
         /* ---------- Helpers ---------- */
         function mostrarAlerta(text) {
             mensajeAlerta.setAttribute("value", text);
             mensajeAlerta.setAttribute("visible", true);
-            setTimeout(() => mensajeAlerta.setAttribute("visible", false), 3000);
+            setTimeout(() => mensajeAlerta.setAttribute("visible", false), 4000);
         }
 
         function afegirInventari(item) {
@@ -285,6 +350,7 @@
             const nou = actual && actual !== "" ? actual + "\n" + item : item;
             inventarioText.setAttribute("value", nou);
             inventarioPanel.setAttribute("visible", true);
+            actualitzarComptador();
         }
 
         function bloquejarCamera() {
