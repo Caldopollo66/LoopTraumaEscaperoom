@@ -2,254 +2,217 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>Sala Jefe</title>
+  <title>LoopTrauma - El Sol Oscuro</title>
   <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
   <style>
-    body { margin: 0; overflow: hidden; background: #000; }
-    #ui {
-      position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-      width: 350px; text-align: center; color: white; font-family: 'Arial Black', sans-serif; z-index: 10;
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #000; overflow: hidden; }
+
+    /* ===== HUD ===== */
+    #hud {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none; z-index: 999; font-family: 'Share Tech Mono', monospace;
     }
-    .bar-bg { width: 100%; height: 15px; border: 2px solid #ff0000; background: #200; margin-bottom: 5px; box-shadow: 0 0 15px #ff0000; }
-    #healthBar { height: 100%; width: 100%; background: linear-gradient(90deg, #ff0000, #990000); transition: width 0.1s; }
-    #playerLife { font-size: 2.2em; color: #ff4444; text-shadow: 0 0 15px red; letter-spacing: 5px; }
-    #modeText { color: #fff; font-size: 0.9em; margin-top: 5px; text-transform: uppercase; background: rgba(255,0,0,0.2); }
-    #fadeOverlay {
-      display: none; position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%; background: black;
-      z-index: 99999; opacity: 0; transition: opacity 2s ease; pointer-events: none;
+
+    #boss-banner {
+      position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%);
+      text-align: center; opacity: 0; transition: opacity 1s ease;
     }
+    #boss-banner.visible { opacity: 1; }
+    #boss-title {
+      font-family: 'Cinzel', serif; font-size: 2.2em; font-weight: 900;
+      color: #d4af37; text-shadow: 0 0 20px rgba(212,175,55,0.5);
+      letter-spacing: 6px; text-transform: uppercase;
+    }
+
+    #boss-hp-wrap {
+      position: absolute; bottom: 60px; left: 50%; transform: translateX(-50%);
+      width: 600px; max-width: 90vw; text-align: center;
+    }
+    .hp-bar-bg {
+      width: 100%; height: 14px; background: rgba(0,0,5,0.7);
+      border: 1px solid #d4af37; box-shadow: 0 0 15px rgba(212,175,55,0.2);
+    }
+    #bossBar {
+      height: 100%; width: 100%;
+      background: linear-gradient(90deg, #1a2a6c, #b21f1f, #fdbb2d);
+      transition: width 0.15s ease;
+    }
+
+    #player-hp-wrap { position: absolute; top: 28px; left: 32px; }
+    #playerLife { font-family: 'Cinzel', serif; font-size: 1.6em; color: #ff4444; text-shadow: 0 0 10px #ff0000; }
+    .player-bar-bg { width: 180px; height: 10px; background: rgba(0,0,0,0.5); border: 1px solid #ff4444; margin-top: 6px; }
+    #playerBar { height: 100%; width: 100%; background: #ff4444; }
+
+    #modeText {
+      position: absolute; top: 28px; right: 32px;
+      font-family: 'Cinzel', serif; color: #d4af37; text-align: right;
+    }
+
+    #endScreen {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,5,0.9); z-index: 2000;
+      flex-direction: column; align-items: center; justify-content: center;
+      font-family: 'Cinzel', serif; color: #d4af37; text-align: center;
+    }
+    #endScreen.show { display: flex; }
+    #endBtn {
+      margin-top: 48px; padding: 14px 48px; border: 1px solid #d4af37;
+      background: transparent; color: #d4af37; cursor: pointer; transition: 0.3s;
+      letter-spacing: 3px;
+    }
+    #endBtn:hover { background: #d4af37; color: #000; }
   </style>
 </head>
 <body>
 
-<div id="fadeOverlay"></div>
-
-<div id="ui">
-  <div id="playerLife">❤️ ❤️ ❤️</div>
-  <div class="bar-bg"><div id="healthBar"></div></div>
-  <div id="modeText">FASE: ANIQUILACIÓ</div>
+<div id="hud">
+  <div id="player-hp-wrap">
+    <div id="playerLife">❤ ❤ ❤</div>
+    <div class="player-bar-bg"><div id="playerBar"></div></div>
+  </div>
+  <div id="modeText"><span>FASE ACTUAL</span><br>L'ÚLTIM FILL D'GWYN</div>
+  <div id="boss-hp-wrap">
+    <div style="color:#d4af37; font-size:0.8em; margin-bottom:5px; letter-spacing: 4px;">GWYNDOLIN EL SOL OSCUR</div>
+    <div class="hp-bar-bg"><div id="bossBar"></div></div>
+  </div>
+  <div id="boss-banner"><div id="boss-title">CORRUPCIÓ</div></div>
 </div>
 
-<a-scene renderer="colorManagement: true; lightingDataRestriction: false;">
+<div id="endScreen">
+  <div id="endTitle" style="font-size: 3em; margin-bottom: 10px;">HAS MORT</div>
+  <button id="endBtn" onclick="location.reload()">TORNAR A INTENTAR</button>
+</div>
 
-  <a-assets>
-    <a-asset-item id="modeloArena" src="modelos/londo_exterior.glb"></a-asset-item>
-    <a-asset-item id="bossGlb"     src="modelos/boos.glb"></a-asset-item>
-  </a-assets>
+<a-assets>
+  <img id="fons" src="IMG/lonod.jpg">
+  <audio id="musicaGwyndolin" src="musica/Dark Sun Gwyndolin.mp3" preload="auto"></audio>
+  <a-asset-item id="londo" src="modelos/anor_londo.glb"></a-asset-item>
+  <a-asset-item id="bossModel" src="modelos/boos.glb"></a-asset-item>
+</a-assets>
 
-  <a-light type="ambient"     color="#4a5a7a" intensity="0.6"></a-light>
-  <a-light type="directional" color="#6a80b0" intensity="0.35" position="-1 10 3"></a-light>
-  <a-light type="point" color="#ff2200" intensity="2.5" distance="40" position="-555 158 255"></a-light>
+<a-scene background="color: #020205" fog="none">
+  
+  <a-light type="ambient" color="#1a2035" intensity="0.3"></a-light>
+  <a-light type="directional" color="#aaccff" intensity="0.6" position="-5 12 -2"></a-light>
+  <a-light type="point" color="#445577" intensity="0.5" position="0 5 0" distance="30"></a-light>
 
-  <a-sky color="#060d1a"></a-sky>
+  <a-sky src="#fons" radius="1400" material="color: #445577; shader: flat" rotation="0 -90 0"></a-sky>
 
-  <!-- Jugador enfront del boss -->
-  <a-entity id="player" position="-530 144 255" rotation="0 90 0">
-    <a-camera id="mainCam" wasd-controls="acceleration: 100" look-controls></a-camera>
+  <a-entity gltf-model="#londo" position="-2550 -1430.4 -5525" rotation="0 90 0" scale="10 10 10"></a-entity>
+  <a-plane rotation="-90 0 0" width="70" height="70" position="0 0 -10" color="#050508" metalness="0.5" roughness="0.9"></a-plane>
+
+  <a-entity id="player" position="0 0 7">
+    <a-camera id="mainCam" wasd-controls="acceleration: 80" look-controls="pointerLockEnabled: true">
+      <a-entity id="sonidoFondo" sound="src: #musicaGwyndolin; autoplay: true; loop: true; volume: 3; positional: false"></a-entity>
+      <a-cursor color="#d4af37"></a-cursor>
+    </a-camera>
   </a-entity>
 
-  <!-- Escenari arena -->
-  <a-entity gltf-model="#modeloArena"
-    position="-2550 -1430.4 -5525"
-    rotation="0 90 0"
-    scale="10 10 10">
-  </a-entity>
-
-  <!-- Boss — model glb amb la lògica de bullet hell -->
-  <a-entity id="boss"
-    gltf-model="#bossGlb"
-    position="-555 142.5 255"
-    rotation="0 270 0"
-    scale="3 3 3"
-    boss-logic>
+  <a-entity id="boss" position="0 0 -18" boss-logic>
+    <a-entity id="bossGLB" gltf-model="#bossModel" scale="2.2 2.2 2.2" rotation="0 180 0"></a-entity>
+    <a-light type="point" color="#ff0044" intensity="2" distance="15"></a-light>
+    <a-sphere radius="2.5" color="#ff0044" opacity="0.15" material="shader:flat"></a-sphere>
   </a-entity>
 
 </a-scene>
 
 <script>
-let bossHP      = 100;
-let playerHP    = 3;
-let isInvincible = false;
-let attackMode  = 0;
+  let bossHP = 100, playerHP = 3, isInvincible = false, bossAlive = true, attackMode = 0;
+  const bossBarEl = document.getElementById("bossBar"), playerBarEl = document.getElementById("playerBar"),
+        playerLifeEl = document.getElementById("playerLife"), endScreen = document.getElementById("endScreen"),
+        endTitle = document.getElementById("endTitle"), endBtn = document.getElementById("endBtn"),
+        cameraEl = document.getElementById("mainCam");
 
-const healthBarEl  = document.getElementById("healthBar");
-const playerLifeEl = document.getElementById("playerLife");
-const modeTextEl   = document.getElementById("modeText");
-const fadeOverlay  = document.getElementById("fadeOverlay");
-
-// Fade d'entrada
-fadeOverlay.style.display = "block";
-fadeOverlay.style.opacity = "1";
-fadeOverlay.getBoundingClientRect();
-setTimeout(() => {
-  fadeOverlay.style.opacity = "0";
-  setTimeout(() => { fadeOverlay.style.display = "none"; }, 2000);
-}, 300);
-
-// ─── BOSS LOGIC ─────────────────────────────────────────────────────────────
-AFRAME.registerComponent('boss-logic', {
-  init: function () {
-    this.timer      = 0;
-    this.phaseTimer = 0;
-    this.angleOffset = 0;
-    this.dir        = 1;
-    // Posició base del boss
-    this.baseX = this.el.object3D.position.x;
-    this.baseZ = this.el.object3D.position.z;
-  },
-
-  tick: function (t, dt) {
-    if (bossHP <= 0 || playerHP <= 0) return;
-
-    this.timer      += dt;
-    this.phaseTimer += dt;
-
-    // Moviment lateral del boss al llarg de l'eix X (arena)
-    const pos = this.el.object3D.position;
-    pos.z += this.dir * 0.06;
-    if (Math.abs(pos.z - this.baseZ) > 8) this.dir *= -1;
-
-    // Rotació suau del model
-    this.el.object3D.rotation.y += 0.005;
-
-    // Canviar fase cada 4 s
-    if (this.phaseTimer > 4000) {
-      attackMode = (attackMode + 1) % 5;
-      this.phaseTimer = 0;
-      const noms = ["ANELLS DOBLES", "ASPES CREUADES", "CAÇA PESADA", "PLUJA DE CAOS", "MUR TOTAL"];
-      modeTextEl.textContent = "FASE: " + noms[attackMode];
-    }
-
-    // Freqüència de disparament per fase
-    const fireRate = attackMode === 1 ? 80 : 450;
-    if (this.timer > fireRate) {
-      this.executeAttack();
-      this.timer = 0;
-    }
-
-    // Vida del boss baixa sola (demo)
-    if (bossHP > 0) {
-      bossHP -= 0.05;
-      healthBarEl.style.width = bossHP + "%";
-      if (bossHP <= 0) bossDefeated();
-    }
-  },
-
-  executeAttack: function () {
-    const camEl  = document.getElementById("mainCam");
-    const pPos   = new THREE.Vector3();
-    camEl.object3D.getWorldPosition(pPos);
-    const bPos   = this.el.object3D.position;
-    const toPlayer = Math.atan2(pPos.x - bPos.x, pPos.z - bPos.z);
-
-    switch (attackMode) {
-      case 0: // Anells dobles
-        this.shootRing(14, 0.2, "#ff0055");
-        break;
-      case 1: // Aspes creuades
-        this.angleOffset += 0.6;
-        this.createBullet(this.angleOffset,  0.25, "#00ffff");
-        this.createBullet(-this.angleOffset, 0.25, "#00ffff");
-        break;
-      case 2: // Ventall al jugador
-        for (let i = -2; i <= 2; i++)
-          this.createBullet(toPlayer + (i * 0.2), 0.3, "#ffeb3b");
-        break;
-      case 3: // Laterals que tanquen
-        this.createBullet(toPlayer + 1.5, 0.2, "#ffffff");
-        this.createBullet(toPlayer - 1.5, 0.2, "#ffffff");
-        break;
-      case 4: // Mur
-        for (let i = 0; i < 8; i++)
-          this.createBullet((i * 0.4) + toPlayer - 1.5, 0.15, "#ff5722");
-        break;
-    }
-  },
-
-  shootRing: function (count, speed, color) {
-    for (let i = 0; i < count; i++)
-      this.createBullet(i * (Math.PI * 2 / count), speed, color);
-  },
-
-  createBullet: function (angle, speed, color) {
-    const bullet = document.createElement('a-sphere');
-    bullet.setAttribute('radius', 0.45);
-    bullet.setAttribute('color', color);
-    bullet.setAttribute('material', 'emissive:' + color + '; emissiveIntensity: 2');
-    bullet.setAttribute('position', {
-      x: this.el.object3D.position.x,
-      y: this.el.object3D.position.y + 1,
-      z: this.el.object3D.position.z
-    });
-    bullet.setAttribute('bullet-move', { vx: Math.sin(angle) * speed, vz: Math.cos(angle) * speed });
-    this.el.sceneEl.appendChild(bullet);
-  }
-});
-
-// ─── BULLET MOVE ─────────────────────────────────────────────────────────────
-AFRAME.registerComponent('bullet-move', {
-  schema: { vx: { type: 'number' }, vz: { type: 'number' } },
-  init: function () {
-    this.pVec = new THREE.Vector3();
-    this.bVec = new THREE.Vector3();
-    this.camEl = document.getElementById("mainCam");
-  },
-  tick: function (time, dt) {
-    const pos = this.el.object3D.position;
-    pos.x += this.data.vx * (dt / 16);
-    pos.z += this.data.vz * (dt / 16);
-
-    this.camEl.object3D.getWorldPosition(this.pVec);
-    this.el.object3D.getWorldPosition(this.bVec);
-
-    const distXZ = Math.sqrt(
-      Math.pow(this.pVec.x - this.bVec.x, 2) +
-      Math.pow(this.pVec.z - this.bVec.z, 2)
-    );
-
-    if (distXZ < 0.85 && !isInvincible && Math.abs(this.pVec.y - this.bVec.y) < 1.3) {
-      takeDamage();
-    }
-    if (this.bVec.distanceTo(this.pVec) > 60) {
-      if (this.el.parentNode) this.el.parentNode.removeChild(this.el);
-    }
-  }
-});
-
-// ─── DANY AL JUGADOR ─────────────────────────────────────────────────────────
-function takeDamage() {
-  if (isInvincible) return;
-  playerHP--;
-  isInvincible = true;
-
-  let hearts = "";
-  for (let i = 0; i < playerHP; i++) hearts += "❤️ ";
-  playerLifeEl.textContent = hearts || "MORT";
-
-  document.body.style.filter = "contrast(200%) brightness(50%) sepia(100%) hue-rotate(-50deg)";
-  setTimeout(() => { document.body.style.filter = "none"; }, 150);
-
-  if (playerHP <= 0) {
+  window.addEventListener('load', () => {
     setTimeout(() => {
-      fadeOverlay.style.display = "block";
-      fadeOverlay.style.opacity = "0";
-      fadeOverlay.getBoundingClientRect();
-      fadeOverlay.style.opacity = "1";
-      setTimeout(() => { location.reload(); }, 2000);
-    }, 300);
-  } else {
-    setTimeout(() => { isInvincible = false; }, 600);
-  }
-}
+      document.getElementById('boss-banner').classList.add('visible');
+      setTimeout(() => document.getElementById('boss-banner').classList.remove('visible'), 3000);
+    }, 1000);
+  });
 
-// ─── BOSS DERROTAT ────────────────────────────────────────────────────────────
-function bossDefeated() {
-  modeTextEl.textContent = "BOSS DERROTAT!";
-  modeTextEl.style.color = "#00FF88";
-  healthBarEl.style.width = "0%";
-}
+  AFRAME.registerComponent('boss-logic', {
+    init: function () { this.timer = 0; this.phaseTimer = 0; this.dir = 1; },
+    tick: function (t, dt) {
+      if (!bossAlive) return;
+      this.timer += dt; this.phaseTimer += dt;
+      const pos = this.el.object3D.position;
+      pos.x += this.dir * 0.1 * (dt / 16);
+      if (Math.abs(pos.x) > 12) this.dir *= -1;
+
+      if (this.phaseTimer > 4000) {
+        attackMode = (attackMode + 1) % 5;
+        this.phaseTimer = 0;
+        const noms = ["FOC DE L'ANIMA", "GRAN FLETXA", "MIRATGE", "PLUJA ESTELAR", "MUR DE LLUNA"];
+        document.getElementById("modeText").innerHTML = `<span>FASE ACTUAL</span><br>${noms[attackMode]}`;
+      }
+
+      if (this.timer > (attackMode === 1 ? 100 : 450)) {
+        this.executeAttack();
+        this.timer = 0;
+      }
+
+      if (bossHP > 0) {
+        bossHP -= 0.05 * (dt / 16);
+        bossBarEl.style.width = Math.max(0, bossHP) + "%";
+        if (bossHP <= 0) this.onBossDie();
+      }
+    },
+    executeAttack: function () {
+      const pPos = new THREE.Vector3(); cameraEl.object3D.getWorldPosition(pPos);
+      const bPos = this.el.object3D.position;
+      const angle = Math.atan2(pPos.x - bPos.x, pPos.z - bPos.z);
+      
+      switch (attackMode) {
+        case 0: for(let i=0;i<10;i++) this.createBullet(i*0.62, 0.22, "#00ffcc"); break; 
+        case 1: this.createBullet(angle, 0.45, "#ffffff"); break; 
+        case 2: this.createBullet(angle-0.5, 0.3, "#ff00ff"); this.createBullet(angle+0.5, 0.3, "#ff00ff"); break; 
+        case 3: for(let i=0; i<3; i++) this.createBullet(Math.random()*6, 0.2, "#00bbff"); break;
+        case 4: for(let i=-3;i<=3;i++) this.createBullet(angle + i*0.15, 0.18, "#ff4400"); break;
+      }
+    },
+    createBullet: function (angle, speed, color) {
+      const bullet = document.createElement('a-sphere');
+      bullet.setAttribute('radius', '0.4');
+      bullet.setAttribute('material', `shader: flat; color: ${color}; emissive: ${color}; emissiveIntensity: 3`);
+      bullet.setAttribute('position', { x: this.el.object3D.position.x, y: 1.2, z: this.el.object3D.position.z });
+      bullet.setAttribute('bullet-move', { vx: Math.sin(angle) * speed, vz: Math.cos(angle) * speed });
+      this.el.sceneEl.appendChild(bullet);
+    },
+    onBossDie: function () {
+      bossAlive = false;
+      document.getElementById('bossGLB').setAttribute('animation', 'property: scale; to: 0 0 0; dur: 1200; easing: easeInElastic');
+      setTimeout(() => {
+        endTitle.textContent = "VICTÒRIA";
+        endBtn.textContent = "CONTINUAR";
+        endBtn.onclick = () => window.location.href = 'Bosque.html';
+        endScreen.classList.add('show');
+      }, 1000);
+    }
+  });
+
+  AFRAME.registerComponent('bullet-move', {
+    schema: { vx: { type: 'number' }, vz: { type: 'number' } },
+    init: function () { this.pVec = new THREE.Vector3(); this.bVec = new THREE.Vector3(); },
+    tick: function (time, dt) {
+      if (!bossAlive) { if (this.el.parentNode) this.el.parentNode.removeChild(this.el); return; }
+      const pos = this.el.object3D.position;
+      pos.x += this.data.vx * (dt / 16); pos.z += this.data.vz * (dt / 16);
+      cameraEl.object3D.getWorldPosition(this.pVec);
+      this.el.object3D.getWorldPosition(this.bVec);
+      if (Math.hypot(this.pVec.x - this.bVec.x, this.pVec.z - this.bVec.z) < 0.9 && !isInvincible) {
+        playerHP--; isInvincible = true;
+        playerLifeEl.textContent = "❤ ".repeat(playerHP) || "✝";
+        playerBarEl.style.width = (playerHP / 3 * 100) + "%";
+        if (playerHP <= 0) { endScreen.classList.add('show'); }
+        else { setTimeout(() => isInvincible = false, 800); }
+        if (this.el.parentNode) this.el.parentNode.removeChild(this.el);
+      }
+      if (this.bVec.distanceTo(this.pVec) > 60) { if (this.el.parentNode) this.el.parentNode.removeChild(this.el); }
+    }
+  });
 </script>
-
 </body>
 </html>

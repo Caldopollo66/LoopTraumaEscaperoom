@@ -94,6 +94,27 @@
             transition: opacity 2s ease;
             pointer-events: none;
         }
+
+        /* Botó HTML garantit — apareix quan la porta s'obre */
+        #btnPuerta {
+            display: none;
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 9000;
+            padding: 16px 40px;
+            background: rgba(10,10,10,0.92);
+            border: 2px solid #FFD700;
+            color: #FFD700;
+            font-family: serif;
+            font-size: 20px;
+            letter-spacing: 2px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        #btnPuerta:hover { background: #FFD700; color: #000; }
     </style>
 </head>
 
@@ -101,6 +122,9 @@
 
 <div id="fadeOverlay"></div>
 <div id="contador">Objectes: 0 / 3</div>
+
+<!-- Botó HTML que apareix quan el diàleg acaba — mètode garantit -->
+<button id="btnPuerta" onclick="entrarSalaJefe()">⚔ Entrar a la Sala del Jefe ⚔</button>
 
 <!-- Quiz Artorias -->
 <div id="quizArtorias" class="quizOverlay">
@@ -170,16 +194,27 @@
     <a-plane src="#lolbanana" position="0 5 225" rotation="0 360 0" width="6" height="4"></a-plane>
     <a-entity id="portal" class="clickable" gltf-model="#modeloBoton" position="0 -4 218.23" rotation="0 180 0" scale="0.1 0.1 0.1"></a-entity>
 
-    <a-entity gltf-model="#londo" position="-2550 -1430.4 -5525" rotation="0 90 0" scale="10 10 10">
+    <!--
+        PORTA EXTRETA DEL PARE — coordenades mundials
+        Pare: position="-2550 -1430.4 -5525" rotation="0 90 0" scale="10 10 10"
+        Local puerta: position="-536.794 142.422 255.026" rotation="0 180 0"
 
-        <!-- PORTA — invisible fins que es fa de nit -->
-        <a-entity id="puerta"
-            gltf-model="#doorModel"
-            position="-536.794 142.422 255.026"
-            rotation="0 180 0"
-            scale="2.800 1.350 1.360"
-            visible="false">
-        </a-entity>
+        Amb rotació del pare de 90° al voltant de Y:
+          Món X = pX + (lZ * scX * cos90  + lX * scX * sin90) = -2550 + (255.026*10*0 + (-536.794)*10*1) = -2550 - 5367.94 = -7917.94
+          Món Y = -1430.4 + 142.422*10 = -6.18
+          Món Z = pZ + (lZ * scZ * -sin90 + lX * scZ * cos90) = -5525 + (255.026*10*(-1) + (-536.794)*10*0) = -5525 - 2550.26 = -8075.26
+        Rotació total: 90 (pare) + 180 (local) = 270° en Y
+    -->
+    <a-entity
+        id="puerta"
+        gltf-model="#doorModel"
+        position="-7918 -6 -8075"
+        rotation="0 270 0"
+        scale="28 13.5 13.6"
+        visible="false">
+    </a-entity>
+
+    <a-entity gltf-model="#londo" position="-2550 -1430.4 -5525" rotation="0 90 0" scale="10 10 10">
 
         <a-entity id="calizObjeto" class="clickable" gltf-model="#calizModel"
             position="-579.158 144.228 255.036" rotation="0 90 0" scale="0.2 0.2 0.2"></a-entity>
@@ -259,6 +294,7 @@
         const sonidoFondo     = document.querySelector("#sonidoFondo");
         const sonidoDialeg    = document.querySelector("#sonidoDialeg");
         const contador        = document.getElementById("contador");
+        const btnPuerta       = document.getElementById("btnPuerta");
 
         /* ---------- Comptador ---------- */
         function actualitzarComptador() {
@@ -269,6 +305,19 @@
             } else {
                 contador.textContent = "Objectes: " + numObjectes + " / 3";
             }
+        }
+
+        /* ---------- Redirecció garantida ---------- */
+        function entrarSalaJefe() {
+            fadeOverlay.style.pointerEvents = "all";
+            fadeOverlay.style.display = "block";
+            fadeOverlay.style.opacity = "0";
+            fadeOverlay.getBoundingClientRect();
+            fadeOverlay.style.transition = "opacity 2s ease";
+            fadeOverlay.style.opacity = "1";
+            setTimeout(() => {
+                window.location.href = "sala_jefe.html";
+            }, 2000);
         }
 
         /* ---------- Portal / altar ---------- */
@@ -292,10 +341,10 @@
             fadeOverlay.style.display = "block";
             fadeOverlay.style.opacity = "0";
             fadeOverlay.getBoundingClientRect();
+            fadeOverlay.style.transition = "opacity 2s ease";
             fadeOverlay.style.opacity = "1";
 
             setTimeout(() => {
-                // Llums nocturnes
                 luzAmbiente.setAttribute("intensity", "0.55");
                 luzAmbiente.setAttribute("color", "#3a4a6b");
                 luzDireccional.setAttribute("intensity", "0.3");
@@ -303,22 +352,21 @@
                 cel.setAttribute("color", "#0d1a2e");
                 cel.removeAttribute("src");
 
-                // Apareix el boss i la porta
                 bossModel.setAttribute("visible", true);
                 puerta.setAttribute("visible", true);
 
-                // Canvi de música
                 sonidoFondo.components.sound.stopSound();
                 sonidoDialeg.components.sound.playSound();
 
-                // Quan acaba el diàleg → porta clickable
+                // Quan acaba el diàleg → activar porta i botó
                 const audioEl = document.querySelector("#musicaDialeg");
                 audioEl.addEventListener("ended", function onDialegEnd() {
                     audioEl.removeEventListener("ended", onDialegEnd);
-                    dialogFet = true;
-                    puerta.classList.add("clickable");
-                    mostrarAlerta("La porta s'ha obert...");
+                    activarPuerta();
                 });
+
+                // Fallback: si l'àudio no llança "ended" en 30s, activem igualment
+                setTimeout(() => { if (!dialogFet) activarPuerta(); }, 30000);
 
                 fadeOverlay.style.opacity = "0";
                 setTimeout(() => { fadeOverlay.style.display = "none"; }, 2000);
@@ -326,23 +374,27 @@
             }, 2000);
         }
 
-        /* ---------- Porta → sala_jefe.html ---------- */
+        /* ---------- Activar porta ---------- */
+        function activarPuerta() {
+            if (dialogFet) return;
+            dialogFet = true;
+            puerta.classList.add("clickable");
+            // Botó HTML visible — funciona sempre, independentment del raycaster
+            btnPuerta.style.display = "block";
+            mostrarAlerta("La porta s'ha obert! Fes clic per entrar.");
+        }
+
+        /* ---------- Porta A-Frame click ---------- */
         puerta.addEventListener("click", function () {
             if (!dialogFet) return;
-            fadeOverlay.style.display = "block";
-            fadeOverlay.style.opacity = "0";
-            fadeOverlay.getBoundingClientRect();
-            fadeOverlay.style.opacity = "1";
-            setTimeout(() => {
-                window.location.href = "sala_jefe.html";
-            }, 2000);
+            entrarSalaJefe();
         });
 
         /* ---------- Helpers ---------- */
         function mostrarAlerta(text) {
             mensajeAlerta.setAttribute("value", text);
             mensajeAlerta.setAttribute("visible", true);
-            setTimeout(() => mensajeAlerta.setAttribute("visible", false), 4000);
+            setTimeout(() => mensajeAlerta.setAttribute("visible", false), 5000);
         }
 
         function afegirInventari(item) {
