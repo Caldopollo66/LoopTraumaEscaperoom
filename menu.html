@@ -4,50 +4,391 @@
   <meta charset="utf-8">
   <title>LoopTrauma - Menu</title>
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body { background: #000; overflow: hidden; }
+
+    /* HUD overlay */
+    #hud {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 999;
+      font-family: 'Share Tech Mono', monospace;
+    }
+
+    /* Scanlines effect */
+    #hud::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.07) 2px,
+        rgba(0,0,0,0.07) 4px
+      );
+      pointer-events: none;
+      animation: scanMove 8s linear infinite;
+    }
+
+    @keyframes scanMove {
+      0% { background-position: 0 0; }
+      100% { background-position: 0 100px; }
+    }
+
+    /* Corner decorations */
+    .corner {
+      position: absolute;
+      width: 60px; height: 60px;
+      border-color: #ff0033;
+      border-style: solid;
+      opacity: 0.7;
+      animation: cornerPulse 2s ease-in-out infinite;
+    }
+    .corner-tl { top: 20px; left: 20px; border-width: 2px 0 0 2px; }
+    .corner-tr { top: 20px; right: 20px; border-width: 2px 2px 0 0; }
+    .corner-bl { bottom: 20px; left: 20px; border-width: 0 0 2px 2px; }
+    .corner-br { bottom: 20px; right: 20px; border-width: 0 2px 2px 0; }
+
+    @keyframes cornerPulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    /* Top status bar */
+    .status-bar {
+      position: absolute;
+      top: 28px; left: 80px; right: 80px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #ff0033;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #ff0033;
+      margin-right: 6px;
+      animation: blink 1.2s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* Bottom bar */
+    .bottom-bar {
+      position: absolute;
+      bottom: 28px; left: 80px; right: 80px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 10px;
+      color: rgba(255, 0, 51, 0.5);
+      letter-spacing: 2px;
+    }
+
+    /* Glitch loader line */
+    .loader-line {
+      position: absolute;
+      bottom: 50px; left: 80px; right: 80px;
+      height: 1px;
+      background: rgba(255,0,51,0.15);
+      overflow: hidden;
+    }
+    .loader-line::after {
+      content: '';
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, #ff0033, transparent);
+      animation: scanLine 3s linear infinite;
+    }
+    @keyframes scanLine {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    /* Click hint */
+    .hint {
+      position: absolute;
+      bottom: 80px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 11px;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      animation: fadeInOut 3s ease-in-out infinite;
+      white-space: nowrap;
+    }
+    @keyframes fadeInOut {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 0.6; }
+    }
+
+    /* Vignette */
+    #vignette {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.7) 100%);
+      pointer-events: none;
+      z-index: 998;
+    }
+
+    /* Glitch flash overlay */
+    #glitch-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: transparent;
+      pointer-events: none;
+      z-index: 1000;
+      animation: glitchFlash 7s infinite;
+    }
+    @keyframes glitchFlash {
+      0%, 96%, 100% { background: transparent; }
+      97% { background: rgba(255,0,51,0.04); }
+      98% { background: transparent; }
+      99% { background: rgba(255,0,51,0.02); }
+    }
+  </style>
 </head>
 
-<a-assets>
-  <img id="jef" src="IMG/abono.jpeg">
-</a-assets>
-
 <body>
-  <a-scene>
 
-    <!-- Sky con imagen noche.jpg -->
-    <a-sky src="IMG/noche.jpg"></a-sky> 
+  <!-- HUD Overlay -->
+  <div id="vignette"></div>
+  <div id="glitch-overlay"></div>
+  <div id="hud">
+    <div class="corner corner-tl"></div>
+    <div class="corner corner-tr"></div>
+    <div class="corner corner-bl"></div>
+    <div class="corner corner-br"></div>
 
-    <!-- Cámara libre -->
-    <a-entity 
-      camera 
+    <div class="status-bar">
+      <span><span class="status-dot"></span>SYSTEM ONLINE</span>
+      <span>LOOPTRAUMA // v1.0</span>
+      <span id="clock">--:--:--</span>
+    </div>
+
+    <div class="bottom-bar">
+      <span>SECTOR-7 / NODE-03</span>
+      <span>MEM: 2047MB / INTEGRITY: 94%</span>
+    </div>
+
+    <div class="loader-line"></div>
+    <div class="hint">· MIRA ELS BOTONS PER INTERACTUAR ·</div>
+  </div>
+
+  <a-assets>
+    <img id="jef" src="IMG/abono.jpeg">
+  </a-assets>
+
+  <a-scene fog="type: exponential; color: #000011; density: 0.02">
+
+    <!-- Sky -->
+    <a-sky src="IMG/noche.jpg" rotation="0 -90 0"></a-sky>
+
+    <!-- Ambient + directional light -->
+    <a-light type="ambient" color="#110022" intensity="0.8"></a-light>
+    <a-light type="directional" position="0 4 -3" color="#ff0033" intensity="0.4"></a-light>
+    <a-light type="point" position="0 2 -4" color="#3300ff" intensity="0.6" distance="10"></a-light>
+
+    <!-- ======= FLOOR ======= -->
+    <a-plane
+      position="0 0 0"
+      rotation="-90 0 0"
+      width="60" height="60"
+      color="#050008"
+      metalness="0.9"
+      roughness="0.1">
+    </a-plane>
+
+    <!-- Grid lines on floor (visual detail) -->
+    <a-entity position="0 0.01 0">
+      <!-- Long grid lines X -->
+      <a-plane rotation="-90 0 0" width="60" height="0.02" color="#1a0030" position="0 0 -4" opacity="0.6"></a-plane>
+      <a-plane rotation="-90 0 0" width="60" height="0.02" color="#1a0030" position="0 0 -2" opacity="0.4"></a-plane>
+      <a-plane rotation="-90 0 0" width="60" height="0.02" color="#1a0030" position="0 0 0" opacity="0.4"></a-plane>
+      <a-plane rotation="-90 0 0" width="60" height="0.02" color="#1a0030" position="0 0 2" opacity="0.4"></a-plane>
+      <!-- Long grid lines Z -->
+      <a-plane rotation="-90 90 0" width="60" height="0.02" color="#1a0030" position="-4 0 0" opacity="0.3"></a-plane>
+      <a-plane rotation="-90 90 0" width="60" height="0.02" color="#1a0030" position="-2 0 0" opacity="0.3"></a-plane>
+      <a-plane rotation="-90 90 0" width="60" height="0.02" color="#1a0030" position="0 0 0" opacity="0.3"></a-plane>
+      <a-plane rotation="-90 90 0" width="60" height="0.02" color="#1a0030" position="2 0 0" opacity="0.3"></a-plane>
+      <a-plane rotation="-90 90 0" width="60" height="0.02" color="#1a0030" position="4 0 0" opacity="0.3"></a-plane>
+    </a-entity>
+
+    <!-- ======= CAMERA ======= -->
+    <a-entity
+      camera
       position="0 1.6 3"
       look-controls="pointerLockEnabled: true"
       wasd-controls="acceleration: 50">
-
-      <a-cursor color="#FFFFFF"></a-cursor>
-
+      <a-cursor
+        color="#ff0033"
+        fuse="true"
+        fuse-timeout="1500"
+        animation__click="property: scale; startEvents: click; easing: easeInCubic; dur: 150; from: 0.1 0.1 0.1; to: 1 1 1"
+        animation__fusing="property: scale; startEvents: fusing; easing: easeInCubic; dur: 1500; from: 1 1 1; to: 0.1 0.1 0.1"
+        animation__mouseleave="property: scale; startEvents: mouseleave; easing: easeInCubic; dur: 500; to: 1 1 1">
+      </a-cursor>
     </a-entity>
 
-    <!-- Título delante -->
-    <a-text 
-      value="LoopTrauma\nNow is personal"
-      position="0 3 -4"
+    <!-- ======= MAIN TITLE PANEL ======= -->
+    <!-- Background panel for title -->
+    <a-plane
+      position="0 3.2 -4.01"
+      width="7.5" height="2"
+      color="#000000"
+      opacity="0.55"
+      material="shader: flat">
+    </a-plane>
+    <!-- Red accent bar top -->
+    <a-plane
+      position="0 4.22 -4"
+      width="7.5" height="0.06"
+      color="#ff0033"
+      material="shader: flat"
+      opacity="0.9">
+    </a-plane>
+    <!-- Red accent bar bottom -->
+    <a-plane
+      position="0 2.18 -4"
+      width="7.5" height="0.06"
+      color="#ff0033"
+      material="shader: flat"
+      opacity="0.9">
+    </a-plane>
+
+    <!-- Title text -->
+    <a-text
+      value="LoopTrauma"
+      position="0 3.55 -4"
       align="center"
-      color="#FF0000"
-      width="10">
+      color="#ff0033"
+      width="10"
+      font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+      wrap-count="20">
+    </a-text>
+    <!-- Subtitle -->
+    <a-text
+      value="NOW IS PERSONAL"
+      position="0 2.85 -4"
+      align="center"
+      color="#ffffff"
+      width="5.5"
+      letter-spacing="6"
+      font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+      opacity="0.55">
     </a-text>
 
-    <!-- Botón -->
-    <a-text 
-      id="startButton"
-      value="Comença el joc"
-      position="0 1.5 -4"
-      align="center"
-      color="#FFFFFF"
-      width="8">
-    </a-text>
+    <!-- ======= MENU BUTTONS ======= -->
 
-    <!-- Plano detrás del jugador -->
-    <a-plane 
+    <!-- START BUTTON -->
+    <a-entity id="btn-start" position="0 1.7 -4">
+      <!-- BG -->
+      <a-plane
+        width="3.6" height="0.62"
+        color="#ff0033"
+        opacity="0.12"
+        material="shader: flat"
+        class="menu-btn-bg">
+      </a-plane>
+      <!-- Border top -->
+      <a-plane position="0 0.31 0.01" width="3.6" height="0.025" color="#ff0033" material="shader: flat" opacity="0.8"></a-plane>
+      <!-- Border bottom -->
+      <a-plane position="0 -0.31 0.01" width="3.6" height="0.025" color="#ff0033" material="shader: flat" opacity="0.8"></a-plane>
+      <!-- Label -->
+      <a-text
+        id="startButton"
+        value="► COMENÇA EL JOC"
+        align="center"
+        color="#ffffff"
+        width="6.5"
+        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+        position="0 0 0.02">
+      </a-text>
+    </a-entity>
+
+    <!-- OPTIONS BUTTON -->
+    <a-entity id="btn-options" position="0 0.95 -4">
+      <a-plane
+        width="3.6" height="0.62"
+        color="#3300ff"
+        opacity="0.08"
+        material="shader: flat"
+        class="menu-btn-bg">
+      </a-plane>
+      <a-plane position="0 0.31 0.01" width="3.6" height="0.02" color="#3300ff" material="shader: flat" opacity="0.5"></a-plane>
+      <a-plane position="0 -0.31 0.01" width="3.6" height="0.02" color="#3300ff" material="shader: flat" opacity="0.5"></a-plane>
+      <a-text
+        id="optionsButton"
+        value="◈ OPCIONS"
+        align="center"
+        color="#aaaacc"
+        width="6.5"
+        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+        position="0 0 0.02">
+      </a-text>
+    </a-entity>
+
+    <!-- CREDITS BUTTON -->
+    <a-entity id="btn-credits" position="0 0.2 -4">
+      <a-plane
+        width="3.6" height="0.62"
+        color="#3300ff"
+        opacity="0.06"
+        material="shader: flat"
+        class="menu-btn-bg">
+      </a-plane>
+      <a-plane position="0 0.31 0.01" width="3.6" height="0.02" color="#3300ff" material="shader: flat" opacity="0.35"></a-plane>
+      <a-plane position="0 -0.31 0.01" width="3.6" height="0.02" color="#3300ff" material="shader: flat" opacity="0.35"></a-plane>
+      <a-text
+        id="creditsButton"
+        value="◎ CRÈDITS"
+        align="center"
+        color="#aaaacc"
+        width="6.5"
+        font="https://cdn.aframe.io/fonts/Exo2Bold.fnt"
+        position="0 0 0.02">
+      </a-text>
+    </a-entity>
+
+    <!-- ======= FLOATING PARTICLES (atmospheric cubes) ======= -->
+    <a-box position="-3 2 -6" width="0.06" height="0.06" depth="0.06" color="#ff0033" opacity="0.6"
+      animation="property: position; to: -3 2.8 -6; dir: alternate; dur: 3000; easing: easeInOutSine; loop: true">
+    </a-box>
+    <a-box position="3.5 1.5 -5" width="0.04" height="0.04" depth="0.04" color="#3300ff" opacity="0.7"
+      animation="property: position; to: 3.5 2.5 -5; dir: alternate; dur: 4200; easing: easeInOutSine; loop: true">
+    </a-box>
+    <a-box position="-2 3.5 -7" width="0.05" height="0.05" depth="0.05" color="#ff0033" opacity="0.4"
+      animation="property: position; to: -2 4.2 -7; dir: alternate; dur: 2800; easing: easeInOutSine; loop: true">
+    </a-box>
+    <a-box position="2.8 3 -6.5" width="0.03" height="0.03" depth="0.03" color="#ff0033" opacity="0.5"
+      animation="property: position; to: 2.8 3.9 -6.5; dir: alternate; dur: 3600; easing: easeInOutSine; loop: true">
+    </a-box>
+    <a-box position="0.5 4.5 -8" width="0.07" height="0.07" depth="0.07" color="#6600ff" opacity="0.3"
+      animation="property: rotation; to: 360 360 0; dur: 6000; easing: linear; loop: true">
+    </a-box>
+
+    <!-- ======= VERTICAL LIGHT BEAMS ======= -->
+    <a-plane position="-4 2 -8" rotation="0 20 0" width="0.03" height="8" color="#ff0033" opacity="0.08" material="shader: flat"></a-plane>
+    <a-plane position="4 2 -8" rotation="0 -20 0" width="0.03" height="8" color="#3300ff" opacity="0.08" material="shader: flat"></a-plane>
+
+    <!-- ======= PLANE BEHIND (preserved, same position) ======= -->
+    <a-plane
       src="#jef"
       position="0 1.6 6"
       rotation="0 180 0"
@@ -59,10 +400,78 @@
   </a-scene>
 
   <script>
-    document.querySelector('#startButton').addEventListener('click', function () {
+    // === Clock ===
+    function updateClock() {
+      const now = new Date();
+      const h = String(now.getHours()).padStart(2,'0');
+      const m = String(now.getMinutes()).padStart(2,'0');
+      const s = String(now.getSeconds()).padStart(2,'0');
+      document.getElementById('clock').textContent = h + ':' + m + ':' + s;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // === Button: Start ===
+    const startBtn = document.querySelector('#startButton');
+    startBtn.addEventListener('click', function () {
       window.location.href = "test.html";
     });
-  </script>
 
+    // === Button hover effects ===
+    function addHoverEffect(entityId, hoverColor, defaultColor) {
+      const entity = document.querySelector('#' + entityId);
+      if (!entity) return;
+
+      const textEl = entity.querySelector('a-text');
+      const bgEl = entity.querySelector('a-plane');
+
+      entity.addEventListener('mouseenter', function () {
+        if (textEl) textEl.setAttribute('color', hoverColor);
+        if (bgEl) {
+          bgEl.setAttribute('opacity', 0.3);
+        }
+        entity.setAttribute('scale', '1.03 1.03 1.03');
+      });
+
+      entity.addEventListener('mouseleave', function () {
+        if (textEl) textEl.setAttribute('color', defaultColor);
+        if (bgEl) {
+          bgEl.setAttribute('opacity', bgEl.getAttribute('_defaultOpacity') || 0.1);
+        }
+        entity.setAttribute('scale', '1 1 1');
+      });
+    }
+
+    // Assign hover effects after scene loads
+    document.querySelector('a-scene').addEventListener('loaded', function () {
+      addHoverEffect('btn-start', '#ff3355', '#ffffff');
+      addHoverEffect('btn-options', '#aaaaff', '#aaaacc');
+      addHoverEffect('btn-credits', '#aaaaff', '#aaaacc');
+
+      // Options button → placeholder
+      document.querySelector('#optionsButton').addEventListener('click', function () {
+        console.log('Opcions - pròximament');
+      });
+
+      // Credits button → placeholder
+      document.querySelector('#creditsButton').addEventListener('click', function () {
+        console.log('Crèdits - pròximament');
+      });
+    });
+
+    // === Breathing animation on title via JS ===
+    let t = 0;
+    const titleText = document.querySelector('#startButton');
+    setInterval(function() {
+      t += 0.05;
+      const pulse = 0.85 + Math.sin(t) * 0.15;
+      // subtle scale pulse on start button entity
+      const ent = document.querySelector('#btn-start');
+      if (ent) {
+        const s = 1 + Math.sin(t * 0.8) * 0.01;
+        ent.setAttribute('scale', `${s} ${s} ${s}`);
+      }
+    }, 50);
+  </script>
 </body>
 </html>
