@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Escena Tito - Escape Room</title>
+  
+  <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+
+  <style>
+    #inventario {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 140px;
+      background: rgba(0, 0, 0, 0.75);
+      color: white;
+      border: 2px solid #fff;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+      font-family: Arial, sans-serif;
+      font-weight: bold;
+      z-index: 100;
+      gap: 6px;
+    }
+
+    #inv-dinero {
+      display: none;
+    }
+
+    #inv-kebab {
+      display: none;
+    }
+
+    /* Mensaje central en pantalla */
+    #mensaje-pantalla {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(0,0,0,0.85);
+      color: #ff4444;
+      font-family: 'Impact', Arial, sans-serif;
+      font-size: 2em;
+      text-align: center;
+      padding: 20px 30px;
+      border: 3px solid #ff4444;
+      border-radius: 8px;
+      display: none;
+      z-index: 200;
+      pointer-events: none;
+      animation: parpadeo 0.6s infinite;
+    }
+
+    @keyframes parpadeo {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+  </style>
+
+  <script>
+    // ──────────── Estado global ────────────
+    let permisoParaCoger    = false;   // El tito nos dejó coger
+    let dineroCantidad      = 0;       // Cuántos dólares tenemos
+    let permisoKebab        = false;   // Gustabo nos dio permiso para el kebab
+    let kebabEnInventario   = false;   // Tenemos el kebab en el inventario
+
+    // ──────────── Helpers UI ────────────
+    function actualizarInventario() {
+      const divDinero = document.getElementById('inv-dinero');
+      const divKebab  = document.getElementById('inv-kebab');
+      const contenedor = document.getElementById('inventario');
+
+      let visible = false;
+
+      if (dineroCantidad > 0) {
+        divDinero.textContent = `💵 Dinero x${dineroCantidad}`;
+        divDinero.style.display = 'block';
+        visible = true;
+      } else {
+        divDinero.style.display = 'none';
+      }
+
+      if (kebabEnInventario) {
+        divKebab.style.display = 'block';
+        visible = true;
+      } else {
+        divKebab.style.display = 'none';
+      }
+
+      contenedor.style.display = visible ? 'flex' : 'none';
+    }
+
+    function mostrarMensaje(texto, duracion = 4000) {
+      const msg = document.getElementById('mensaje-pantalla');
+      msg.textContent = texto;
+      msg.style.display = 'block';
+      setTimeout(() => { msg.style.display = 'none'; }, duracion);
+    }
+
+    // ──────────── Componente: Tito ────────────
+    AFRAME.registerComponent('tito-pregunta', {
+      init: function () {
+        this.el.addEventListener('click', () => {
+          let respuesta = prompt(
+            "Le has preguntado al tito que donde estás y él te dice que tiene dinero para ti, " +
+            "pero solo si respondes bien una pregunta\n\n" +
+            "¿Cuál es el desayuno favorito del tito?\n" +
+            "A) Cemento\nB) Pescado\nC) Sushi\nD) Fentanilo\nE) Kebab"
+          );
+
+          if (respuesta && respuesta.toUpperCase() === 'E') {
+            alert("¡Correcto! El Tito te deja coger tu regalo.");
+            permisoParaCoger = true;
+          } else if (respuesta !== null) {
+            alert("Vuelve a intentarlo... el tito tiene algo para ti.");
+          }
+        });
+      }
+    });
+
+    // ──────────── Componente: Recoger dinero ────────────
+    AFRAME.registerComponent('recoger-coca', {
+      init: function () {
+        this.el.addEventListener('click', () => {
+          if (permisoParaCoger) {
+            this.el.setAttribute('visible', 'false');
+            this.el.setAttribute('scale', '0 0 0');
+
+            dineroCantidad = 5;
+            actualizarInventario();
+            alert("Has obtenido: 💵 Dinero x5\n¡Ahora ve a buscar el kebab!");
+          } else {
+            alert("No toques eso... primero responde al Tito.");
+          }
+        });
+      }
+    });
+
+    // ──────────── Componente: Gustabo ────────────
+    AFRAME.registerComponent('gustabo-tienda', {
+      init: function () {
+        this.el.addEventListener('click', () => {
+          if (permisoKebab) {
+            alert("Gustabo: Ya puedes coger tu kebab, chaval. 🌯");
+            return;
+          }
+
+          let respuesta = prompt(
+            "Gustabo te mira fijamente...\n\n" +
+            "«Si quieres un kebab tienes que darme 5 Dólares»\n\n" +
+            "¿Le das los 5 dólares? (S/N)"
+          );
+
+          if (respuesta && respuesta.toUpperCase() === 'S') {
+            if (dineroCantidad >= 5) {
+              dineroCantidad -= 5;
+              permisoKebab = true;
+              actualizarInventario();
+              alert("Le has dado 5 💵 a Gustabo.\nGustabo: «Perfecto, chaval. Ahora ya puedes coger tu kebab. 🌯»");
+            } else {
+              alert("Gustabo: «Tío, no tienes pasta. Consigue 5 dólares primero.»");
+            }
+          } else if (respuesta !== null) {
+            alert("Gustabo te mira con desprecio y se da la vuelta.");
+          }
+        });
+      }
+    });
+
+    // ──────────── Componente: Kebab (consumible) ────────────
+    AFRAME.registerComponent('coger-kebab', {
+      init: function () {
+        this.el.addEventListener('click', () => {
+          if (!permisoKebab) {
+            alert("Gustabo: «Ey, ese kebab no es tuyo todavía.»");
+            return;
+          }
+
+          if (kebabEnInventario) {
+            // Ya lo tenemos → comérnoslo
+            let comer = prompt("Tienes un kebab en el inventario. 🌯\n¿Te lo comes? (S/N)");
+            if (comer && comer.toUpperCase() === 'S') {
+              kebabEnInventario = false;
+              actualizarInventario();
+              mostrarMensaje("🚨 ¡CORRE AL BAÑO! 🚽 El kebab de Gustabo no sentó bien...", 6000);
+            }
+          } else {
+            // Recogemos el kebab del suelo
+            this.el.setAttribute('visible', 'false');
+            this.el.setAttribute('scale', '0 0 0');
+            kebabEnInventario = true;
+            actualizarInventario();
+            alert("Has cogido el kebab. 🌯\n(Haz clic en el suelo o en él mismo para comérselo)");
+          }
+        });
+      }
+    });
+
+    // ──────────── Componente: Baño ────────────
+    AFRAME.registerComponent('bano-clickable', {
+      init: function () {
+        this.el.addEventListener('click', () => {
+          alert("Has entrado al baño... 🚽\n¡Justo a tiempo!");
+          // Aquí puedes redirigir o lanzar la siguiente escena
+          // window.location.href = "bano.html";
+        });
+      }
+    });
+
+    // ──────────── Next level ────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      const nextLevelObjects = document.querySelectorAll('.next-level');
+      nextLevelObjects.forEach(object => {
+        object.addEventListener('click', function () {
+          window.location.href = "intro.html";
+        });
+      });
+    });
+  </script>
+</head>
+
+<body>
+
+  <!-- HUD Inventario -->
+  <div id="inventario">
+    <div id="inv-dinero">💵 Dinero x5</div>
+    <div id="inv-kebab">🌯 Kebab x1</div>
+  </div>
+
+  <!-- Mensaje central -->
+  <div id="mensaje-pantalla">¡CORRE AL BAÑO! 🚽</div>
+
+  <a-scene physics="debug: false" cursor="rayOrigin: mouse">
+
+    <a-assets>
+      <img id="nublado" src="IMG/nublado.jpg">
+      <a-asset-item id="forest"   src="modelos/forest.glb"></a-asset-item>
+      <a-asset-item id="fenix"    src="modelos/fenix.glb"></a-asset-item>
+      <a-asset-item id="toilet"   src="modelos/portaltoilet.glb"></a-asset-item>
+      <a-asset-item id="baño"     src="modelos/baño.glb"></a-asset-item>
+      <a-asset-item id="tito"     src="modelos/tito.glb"></a-asset-item>
+      <a-asset-item id="cock"     src="modelos/cock.glb"></a-asset-item>
+      <a-asset-item id="cart"     src="modelos/cart.glb"></a-asset-item>
+      <a-asset-item id="gustabo"  src="modelos/gustabo.glb"></a-asset-item>
+      <a-asset-item id="kebab"    src="modelos/kebab.glb"></a-asset-item>
+    </a-assets>
+
+    <!-- Jugador -->
+    <a-entity id="player" position="0.050 1.6 5" rotation="0 0 0">
+      <a-camera wasd-controls="acceleration: 200" look-controls>
+        <a-cursor 
+          color="red" 
+          raycaster="objects: .interactuable">
+        </a-cursor>
+      </a-camera>
+    </a-entity>
+
+    <a-sky src="#nublado" scale="10 10 10"></a-sky>
+
+    <!-- Bosque -->
+    <a-entity gltf-model="#forest" position="24 -5 53" scale="20 20 20" static-body></a-entity>
+
+    <!-- Tito -->
+    <a-entity 
+      id="entidad-tito"
+      gltf-model="#tito"
+      class="interactuable"
+      tito-pregunta
+      position="-40 -7.927 -0.229"
+      rotation="0 0 0"
+      scale="16 16 16"
+      static-body>
+    </a-entity>
+
+    <!-- Objeto dinero (cock.glb) -->
+    <a-entity
+      id="objeto-dinero"
+      gltf-model="#cock"
+      class="interactuable"
+      recoger-coca
+      position="-10 -4.445 -5.904" 
+      scale="1 1 1"
+      static-body>
+    </a-entity>
+
+    <!-- Cart decorativo -->
+    <a-entity
+      id="cart"
+      gltf-model="#cart"
+      position="157.80 -3.838 14.402" 
+      rotation="0 90 0"
+      scale="5 5 5"
+      static-body>
+    </a-entity>
+
+    <!-- Gustabo (vendedor de kebabs) -->
+    <a-entity
+      id="gustabo"
+      gltf-model="#gustabo"
+      class="interactuable"
+      gustabo-tienda
+      position="164 -3.838 81.779" 
+      rotation="0 90 0"
+      scale="5 5 5"
+      static-body>
+    </a-entity>
+
+    <!-- Kebab (consumible) -->
+    <a-entity
+      id="kebab-consumible"
+      gltf-model="#kebab"
+      class="interactuable"
+      coger-kebab
+      position="159.100 1.783 81.594" 
+      rotation="0 90 0"
+      scale="5 5 5"
+      static-body>
+    </a-entity>
+
+    <!-- Elementos decorativos -->
+    <a-entity gltf-model="#fenix"  position="36.811 656.09 -1768.9" scale="5 5 5"></a-entity>
+    <a-entity gltf-model="#toilet" position="124.27 -3.945 60.53"   scale="5 5 5"></a-entity>
+
+    <!-- Baño (clickable) -->
+    <a-entity
+      id="bano"
+      gltf-model="#baño"
+      class="interactuable"
+      bano-clickable
+      position="124.27 -3.945 60.53"
+      scale="10 10 10"
+      static-body>
+    </a-entity>
+
+  </a-scene>
+</body>
+</html>
