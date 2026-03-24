@@ -3,111 +3,304 @@
 <head>
 <meta charset="utf-8">
 
-  <!-- A-Frame 2-->
+  <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
 
   <!-- Physics -->
+  <script src="https://agarci9inscastellet.github.io/scaperoom/js/scaperoom.js"></script>
 
-<script src="https://agarci9inscastellet.github.io/scaperoom/js/scaperoom.js"> </script>
+  <style>
+    /* ---- PANTALLA DE INTRODUCCIÓN ---- */
+    #intro-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.92);
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Georgia', serif;
+      color: #e8d5b0;
+      text-align: center;
+      padding: 40px;
+      box-sizing: border-box;
+    }
+
+    #intro-screen h1 {
+      font-size: 2.2em;
+      letter-spacing: 0.08em;
+      color: #f5c842;
+      text-shadow: 0 0 20px rgba(245, 200, 66, 0.6);
+      margin-bottom: 30px;
+      text-transform: uppercase;
+    }
+
+    #intro-screen p {
+      font-size: 1.15em;
+      line-height: 1.85;
+      max-width: 620px;
+      color: #ddd;
+      margin-bottom: 40px;
+    }
+
+    #intro-screen p em {
+      color: #f5c842;
+      font-style: normal;
+      font-weight: bold;
+    }
+
+    #btn-start {
+      background: transparent;
+      border: 2px solid #f5c842;
+      color: #f5c842;
+      font-size: 1.1em;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 14px 42px;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+      font-family: 'Georgia', serif;
+    }
+
+    #btn-start:hover {
+      background: #f5c842;
+      color: #000;
+    }
+
+    /* ---- MENSAJE DE MUERTE ---- */
+    #death-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0);
+      z-index: 9998;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Georgia', serif;
+      text-align: center;
+      transition: background 1s;
+    }
+
+    #death-screen.visible {
+      display: flex;
+      background: rgba(0, 0, 0, 0.88);
+    }
+
+    #death-screen h1 {
+      font-size: 2.8em;
+      color: #cc0000;
+      text-shadow: 0 0 30px rgba(200, 0, 0, 0.8);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      animation: pulse 1.2s infinite;
+      margin-bottom: 20px;
+    }
+
+    #death-screen p {
+      font-size: 1.2em;
+      color: #ccc;
+      max-width: 500px;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.5; }
+    }
+  </style>
 </head>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
 
-  const nextLevelObjects = document.querySelectorAll('.next-level');
-
-  nextLevelObjects.forEach(object => {
-   object.addEventListener('click', function () {
-  window.location.href = "intro.html";
-    });
-  });
-
-});
-</script>
 <body>
 
+<!-- ===== PANTALLA DE INTRODUCCIÓN ===== -->
+<div id="intro-screen">
+  <h1>⚠ Una Noche de Carretera</h1>
+  <p>
+    Estás <em>perdido</em> en una carretera solitaria, de madrugada.<br>
+    La niebla cubre el asfalto y el frío cala los huesos.<br><br>
+    Tu cabeza da vueltas… llevas horas bebiendo.<br>
+    De repente, entre las sombras, ves <em>unas botellas</em> abandonadas en el arcén.<br><br>
+    Una voz dentro de ti dice: <em>"una más no hace daño…"</em>
+  </p>
+  <button id="btn-start">Entrar en la escena</button>
+</div>
+
+<!-- ===== MENSAJE DE MUERTE ===== -->
+<div id="death-screen">
+  <h1>💀 Has muerto</h1>
+  <p>Has caído en coma etílico.<br>Nadie pudo ayudarte a tiempo.</p>
+</div>
+
+<!-- ===== ESCENA A-FRAME ===== -->
 <a-scene physics="debug: false">
 
   <!-- ASSETS -->
   <a-assets>
     <img id="noche" src="IMG/noche.jpeg">
     <a-asset-item id="carreteraModel" src="modelos/mountain_road_scene.glb"></a-asset-item>
-    <a-asset-item id="Cotxe" src="modelos/coxe.glb"> </a-asset-item>
-    <a-asset-item id="alcol" src="modelos/alcol.glb"> </a-asset-item>
-    <a-asset-item id="jagger" src="modelos/jagger.glb"> </a-asset-item>
-    <a-asset-item id="rope" src="modelos/rope.glb"> </a-asset-item>
+    <a-asset-item id="alcol"  src="modelos/alcol.glb"></a-asset-item>
+    <a-asset-item id="jagger" src="modelos/jagger.glb"></a-asset-item>
     <img id="sonrisa" src="IMG/sonrisa.jpg">
   </a-assets>
 
-  <!-- JUGADOR MÁS PEQUEÑO Y MÁS LENTO -->
-<a-entity id="player" position="0.050 -0.002 -0.229" rotation="0 180 0">
-<a-camera   wasd-controls="acceleration: 2" look-controls>
-<a-cursor color="red"></a-cursor>
-</a-camera>
-</a-entity>
+  <!-- JUGADOR con cuerpo físico para que las colisiones lo bloqueen -->
+  <a-entity
+    id="player"
+    position="0.050 0.08 -0.229"
+    rotation="0 180 0"
+    dynamic-body="shape: box; width: 0.5; height: 1.8; depth: 0.5; mass: 80; linearDamping: 0.99; angularDamping: 1.0">
+    <a-camera wasd-controls="acceleration: 2" look-controls>
+      <a-cursor color="red"></a-cursor>
+    </a-camera>
+  </a-entity>
 
   <!-- CIELO -->
   <a-sky src="#noche"></a-sky>
-  <a-entity
-  class="next-level"
-    gltf-model="#Cotxe"
-    position="3.50 1.438 6.110"
-    scale="0.07 0.07 0.07"
-    rotation="0 210 0"
-    static-body
-    animation="property: position; to: 0.482 1.438 0.713; dur: 10000; easing: linear;">
-  </a-entity> 
 
-  <!-- CARRETERA MÁS GRANDE -->
-  <a-entity 
+  <!-- CARRETERA -->
+  <a-entity
     gltf-model="#carreteraModel"
     position="24 -67.100 53"
     scale="20 20 20"
-    static-body>
-  </a-entity> 
-  <!-- Botellas alchol-->
-  <a-entity 
-    gltf-model="#alcol"
-    position="-0.960 1.448 -1.013"
-    scale="0.005 0.005 0.005"
     static-body>
   </a-entity>
-  <!-- Jägermeister-->
-<a-entity
-class="next-level"
-id="btnjagger"
+
+  <!-- SUELO invisible (caja de colisión plana bajo el jugador) -->
+  <a-box
+    position="0 0.9 0"
+    width="30" height="0.1" depth="30"
+    material="opacity: 0; transparent: true"
+    static-body>
+  </a-box>
+
+  <!-- ======= PAREDES LATERALES INVISIBLES (confinan al jugador en la carretera) ======= -->
+
+  <!-- Pared izquierda -->
+  <a-box
+    position="-3.5 2 0"
+    width="0.2" height="4" depth="30"
+    material="opacity: 0; transparent: true"
+    static-body>
+  </a-box>
+
+  <!-- Pared derecha -->
+  <a-box
+    position="3.5 2 0"
+    width="0.2" height="4" depth="30"
+    material="opacity: 0; transparent: true"
+    static-body>
+  </a-box>
+
+  <!-- Pared frontal (fondo de la escena) -->
+  <a-box
+    position="-2.099 2 0.365" 
+    background="0 0 0"
+    rotation="0 90 0"
+    width="4" height="3" depth="0.2"
+    material="color: #000; opacity: 1; transparent: false"
+    static-body>
+</a-box>
+
+  <!-- Pared trasera (detrás del jugador) -->
+  <a-box
+    position="0 2 8"
+    width="30" height="4" depth="0.2"
+    material="opacity: 0; transparent: true"
+    static-body>
+  </a-box>
+
+  <!-- ======= BOTELLAS CON CAJAS DE COLISIÓN EXPLÍCITAS ======= -->
+
+  <!-- Botellas de alcohol — modelo visual -->
+  <a-entity
+    gltf-model="#alcol"
+    position="-0.960 1.448 -1.013"
+    scale="0.005 0.005 0.005">
+  </a-entity>
+
+  <!-- Caja de colisión para las botellas de alcohol -->
+  <a-box
+    position="-0.960 1.65 -1.013"
+    width="0.25" height="0.55" depth="0.25"
+    material="opacity: 0; transparent: true"
+    static-body>
+  </a-box>
+
+  <!-- Jägermeister — modelo visual CLICKABLE -->
+  <a-entity
+    id="btnJagger"
     gltf-model="#jagger"
     position="-0.960 1.448 -1.013"
-    scale="0.095 0.095 0.095"
+    scale="0.095 0.095 0.095">
+  </a-entity>
+
+  <!-- Caja de colisión para el Jägermeister -->
+  <a-box
+    id="hitBottle"
+    position="-0.960 1.75 -1.013"
+    width="5" height="5" depth="0.30"
+    material="opacity: 0; transparent: false"
     static-body>
-</a-entity> 
-  <!-- Cuerda-->
-<a-entity
-class="next-leve"
-    gltf-model="#rope"
-    position="-0.375 2.132 2.527"
-    scale="0.005 0.005 0.005"
+  </a-box>
+
+  <!-- ======= PLANO CON IMAGEN (caja de colisión incluida) ======= -->
+  <a-plane
+    id="btnsonrisa"
+    src="#sonrisa"
+    position="-9.045 2.132 -2.030"
+    rotation="0 90 0"
+    scale="0.500 0.500 0.500"
+    width="6"
+    height="4"
     static-body>
-</a-entity>
- <a-plane 
- id="btnsonrisa"
-      src="#sonrisa"
-      position="-9.045 2.132 -2.030"
-      rotation="0 90 0"
-      scale="0.500 0.500 0.500"
-      width="6"
-      height="4">
-  </a-plane>
- 
-  <!-- CARRETERA MÁS GRANDE -->
-  <a-entity 
-    gltf-model="#carreteraModel"
-    position="24 -67.100 53"
-    scale="20 20 20"
-    static-body>
+  </a-plane> 
+
+
 </a-scene>
 
 <script>
+  /* ---- Botón inicio ---- */
+  document.getElementById('btn-start').addEventListener('click', function () {
+    document.getElementById('intro-screen').style.display = 'none';
+  });
+
+  /* ---- Lógica de muerte al clickar la botella ---- */
+  function triggerDeath() {
+    const deathScreen = document.getElementById('death-screen');
+    deathScreen.classList.add('visible');
+
+    // Redirigir al siguiente nivel tras 3.5 segundos
+    setTimeout(function () {
+      window.location.href = "intro.html";
+    }, 3500);
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    // Click en el modelo Jägermeister
+    const jagger = document.getElementById('btnJagger');
+    if (jagger) {
+      jagger.addEventListener('click', triggerDeath);
+    }
+
+    // Click en el plano transparente (hit area extra)
+    const hit = document.getElementById('hitBottle');
+    if (hit) {
+      hit.addEventListener('click', triggerDeath);
+    }
+
+    // Click en las botellas de alcohol también mata
+    const alcol = document.querySelector('[gltf-model="#alcol"]');
+    if (alcol) {
+      alcol.addEventListener('click', triggerDeath);
+    }
+  });
+
+  /* ---- questionGate original para el plano sonrisa ---- */
   questionGate("#btnsonrisa", 0, "intro.html");
 </script>
+
 </body>
 </html>

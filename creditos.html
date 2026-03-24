@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Créditos - Space Invaders</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #000;
+    display: flex; align-items: center; justify-content: center;
+    height: 100vh; overflow: hidden;
+    font-family: 'Courier New', monospace;
+  }
+  canvas { display: block; image-rendering: pixelated; }
+
+  #overlay {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: #000; color: #0f0; font-family: 'Courier New', monospace;
+    z-index: 10;
+  }
+  #overlay h1 { font-size: 36px; letter-spacing: 6px; margin-bottom: 14px; color: #fff; }
+  #overlay p  { font-size: 14px; color: #0f0; letter-spacing: 2px; margin-bottom: 6px; }
+  #overlay .sub { color: #888; font-size: 12px; margin-top: 18px; }
+  #start-btn {
+    margin-top: 30px; padding: 12px 36px;
+    background: transparent; border: 2px solid #0f0;
+    color: #0f0; font-family: 'Courier New', monospace;
+    font-size: 16px; letter-spacing: 3px; cursor: pointer;
+    transition: background 0.2s;
+  }
+  #start-btn:hover { background: #0f0; color: #000; }
+
+  #thanks {
+    position: fixed; inset: 0;
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: #000; z-index: 10;
+  }
+  #thanks h1 {
+    font-family: 'Courier New', monospace;
+    font-size: 52px; color: #fff; letter-spacing: 8px;
+    animation: pulse 1.2s ease-in-out infinite;
+  }
+  #thanks p {
+    font-family: 'Courier New', monospace;
+    color: #0f0; font-size: 16px; letter-spacing: 3px; margin-top: 20px;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; } 50% { opacity: 0.4; }
+  }
+
+  #gameover {
+    position: fixed; inset: 0;
+    display: none; flex-direction: column;
+    align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.88); z-index: 10;
+  }
+  #gameover h1 { font-family:'Courier New',monospace; font-size:48px; color:#f00; letter-spacing:6px; }
+  #gameover p  { font-family:'Courier New',monospace; color:#aaa; font-size:14px; margin-top:14px; letter-spacing:2px; }
+  #retry-btn {
+    margin-top: 26px; padding: 10px 30px;
+    background: transparent; border: 2px solid #f00;
+    color: #f00; font-family: 'Courier New', monospace;
+    font-size: 15px; letter-spacing: 3px; cursor: pointer;
+  }
+  #retry-btn:hover { background: #f00; color: #000; }
+</style>
+</head>
+<body>
+
+<!-- Pantalla inicio -->
+<div id="overlay">
+  <h1>CREDITOS</h1>
+  <p>▸ JAN &amp; TONI ◂</p>
+  <p>te atacan durante 30 segundos</p>
+  <div class="sub">← → mover &nbsp;|&nbsp; ESPACIO disparar</div>
+  <button id="start-btn" onclick="startGame()">INICIAR</button>
+</div>
+
+<!-- Pantalla gracias -->
+<div id="thanks">
+  <h1>GRACIAS</h1>
+  <p>JAN &amp; TONI — para siempre</p>
+</div>
+
+<!-- Game over -->
+<div id="gameover">
+  <h1>GAME OVER</h1>
+  <p>Los créditos te aplastaron</p>
+  <button id="retry-btn" onclick="retryGame()">REINTENTAR</button>
+</div>
+
+<canvas id="c"></canvas>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx    = canvas.getContext('2d');
+
+const W = 800, H = 550;
+canvas.width  = W;
+canvas.height = H;
+
+// ── Config ────────────────────────────────────────────
+const GAME_DURATION = 30; // segundos
+const NAMES = ['JAN', 'TONI'];
+
+// Colores
+const COL_BG       = '#000';
+const COL_PLAYER   = '#0f0';
+const COL_BULLET   = '#ff0';
+const COL_ENEMY_J  = '#0af';   // JAN  = azul
+const COL_ENEMY_T  = '#f50';   // TONI = naranja
+const COL_BOMB     = '#f44';
+const COL_HUD      = '#0f0';
+const COL_TIMER_OK = '#0f0';
+const COL_TIMER_LOW= '#f00';
+
+// ── Estado ────────────────────────────────────────────
+let state = 'idle'; // idle | playing | dead | win
+
+let player, bullets, enemies, bombs;
+let keys = {};
+let score = 0;
+let lives = 3;
+let timeLeft = GAME_DURATION;
+let lastTime = 0;
+let enemyDir = 1;
+let enemyDropTimer = 0;
+let enemyShootTimer = 0;
+let waveTimer = 0; // para spawnear oleadas
+let frameCount = 0;
+
+// Partículas de explosión
+let particles = [];
+
+function initGame() {
+  player = { x: W/2 - 16, y: H - 60, w: 32, h: 20, speed: 280, shootCooldown: 0 };
+  bullets  = [];
+  enemies  = [];
+  bombs    = [];
+  particles = [];
+  score = 0;
+  lives = 3;
+  timeLeft = GAME_DURATION;
+  lastTime = performance.now();
+  enemyDir = 1;
+  enemyDropTimer = 0;
+  enemyShootTimer = 0;
+  waveTimer = 0;
+  frameCount = 0;
+  spawnWave();
+  state = 'playing';
+}
+
+// ── Spawn ─────────────────────────────────────────────
+function spawnWave() {
+  // 2 filas de créditos tipo "space invaders"
+  const rows = [
+    { texts: ['JAN','TONI','JAN','TONI','JAN'], color: COL_ENEMY_J, y: 60 },
+    { texts: ['TONI','JAN','TONI','JAN','TONI'], color: COL_ENEMY_T, y: 120 },
+  ];
+  rows.forEach(row => {
+    row.texts.forEach((name, i) => {
+      const ew = name === 'JAN' ? 52 : 60;
+      enemies.push({
+        name, color: row.color,
+        x: 60 + i * 130, y: row.y,
+        w: ew, h: 28,
+        alive: true,
+        wobble: Math.random() * Math.PI * 2
+      });
+    });
+  });
+}
+
+// ── Dibujo ────────────────────────────────────────────
+function drawPlayer() {
+  const p = player;
+  ctx.fillStyle = COL_PLAYER;
+  // Cuerpo
+  ctx.fillRect(p.x + 10, p.y + 8, 12, 12);
+  // Cañón
+  ctx.fillRect(p.x + 14, p.y, 4, 10);
+  // Base
+  ctx.fillRect(p.x, p.y + 14, 32, 6);
+  // Patas
+  ctx.fillRect(p.x,      p.y + 18, 8,  2);
+  ctx.fillRect(p.x + 24, p.y + 18, 8,  2);
+}
+
+function drawEnemy(e) {
+  if (!e.alive) return;
+  ctx.fillStyle = e.color;
+  ctx.font = 'bold 16px Courier New';
+  ctx.textAlign = 'center';
+
+  // Fondo semitransparente
+  ctx.globalAlpha = 0.18;
+  ctx.fillRect(e.x, e.y, e.w, e.h);
+  ctx.globalAlpha = 1;
+
+  // Borde parpadeante
+  ctx.strokeStyle = e.color;
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(e.x + 1, e.y + 1, e.w - 2, e.h - 2);
+
+  // Nombre
+  ctx.fillStyle = e.color;
+  ctx.fillText(e.name, e.x + e.w/2, e.y + e.h - 7);
+
+  // Antenas pixel art
+  ctx.fillRect(e.x + 6, e.y - 5, 2, 5);
+  ctx.fillRect(e.x + e.w - 8, e.y - 5, 2, 5);
+  ctx.fillRect(e.x + 5, e.y - 7, 4, 2);
+  ctx.fillRect(e.x + e.w - 9, e.y - 7, 4, 2);
+}
+
+function drawBullet(b) {
+  ctx.fillStyle = COL_BULLET;
+  ctx.fillRect(b.x - 2, b.y - 7, 4, 14);
+  // brillo
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(b.x - 1, b.y - 6, 2, 4);
+}
+
+function drawBomb(b) {
+  ctx.fillStyle = COL_BOMB;
+  ctx.fillRect(b.x - 3, b.y, 6, 14);
+  ctx.fillStyle = '#f88';
+  ctx.fillRect(b.x - 1, b.y, 2, 5);
+}
+
+function drawParticles() {
+  particles.forEach(p => {
+    ctx.globalAlpha = p.life;
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x, p.y, p.size, p.size);
+  });
+  ctx.globalAlpha = 1;
+}
+
+function drawHUD() {
+  ctx.font = '14px Courier New';
+  ctx.textAlign = 'left';
+  ctx.fillStyle = COL_HUD;
+  ctx.fillText('PUNTOS: ' + score, 14, 22);
+
+  // Vidas como naves pequeñas
+  ctx.fillText('VIDAS:', W - 140, 22);
+  for (let i = 0; i < lives; i++) {
+    const lx = W - 70 + i * 22;
+    ctx.fillStyle = COL_PLAYER;
+    ctx.fillRect(lx+5, 8, 6, 6);
+    ctx.fillRect(lx+7, 4, 2, 5);
+    ctx.fillRect(lx, 11, 16, 3);
+  }
+
+  // Timer central
+  const pct = timeLeft / GAME_DURATION;
+  ctx.textAlign = 'center';
+  ctx.fillStyle = timeLeft <= 10 ? COL_TIMER_LOW : COL_TIMER_OK;
+  ctx.font = 'bold 18px Courier New';
+  ctx.fillText(Math.ceil(timeLeft) + 's', W/2, 22);
+
+  // Barra de tiempo
+  const bw = 200;
+  ctx.strokeStyle = '#333';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(W/2 - bw/2, 28, bw, 5);
+  ctx.fillStyle = timeLeft <= 10 ? '#f00' : '#0f0';
+  ctx.fillRect(W/2 - bw/2, 28, bw * pct, 5);
+
+  // Línea base
+  ctx.strokeStyle = '#0f0';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0, H - 30);
+  ctx.lineTo(W, H - 30);
+  ctx.stroke();
+}
+
+// ── Explosión ─────────────────────────────────────────
+function explode(x, y, color) {
+  for (let i = 0; i < 14; i++) {
+    particles.push({
+      x, y,
+      vx: (Math.random() - 0.5) * 140,
+      vy: (Math.random() - 0.5) * 140,
+      life: 1,
+      size: Math.random() * 4 + 2,
+      color
+    });
+  }
+}
+
+// ── Update ────────────────────────────────────────────
+function update(dt) {
+  if (state !== 'playing') return;
+
+  timeLeft -= dt;
+  frameCount++;
+
+  // ── Player movement ──
+  if (keys['ArrowLeft']  || keys['KeyA']) player.x -= player.speed * dt;
+  if (keys['ArrowRight'] || keys['KeyD']) player.x += player.speed * dt;
+  player.x = Math.max(0, Math.min(W - player.w, player.x));
+
+  // ── Player shoot ──
+  player.shootCooldown -= dt;
+  if ((keys['Space'] || keys[' ']) && player.shootCooldown <= 0) {
+    bullets.push({ x: player.x + player.w/2, y: player.y, speed: 500 });
+    player.shootCooldown = 0.28;
+  }
+
+  // ── Bullets ──
+  bullets.forEach(b => { b.y -= b.speed * dt; });
+  bullets = bullets.filter(b => b.y > -10);
+
+  // ── Enemy movement ──
+  let moveDown = false;
+  const alive = enemies.filter(e => e.alive);
+  if (alive.length === 0) {
+    spawnWave();
+    return;
+  }
+
+  const minX = Math.min(...alive.map(e => e.x));
+  const maxX = Math.max(...alive.map(e => e.x + e.w));
+
+  if (maxX >= W - 10 && enemyDir > 0) { enemyDir = -1; moveDown = true; }
+  if (minX <= 10      && enemyDir < 0) { enemyDir = 1;  moveDown = true; }
+
+  const speed = 40 + (1 - alive.length / 10) * 80;
+  enemies.forEach(e => {
+    if (!e.alive) return;
+    e.x += enemyDir * speed * dt;
+    e.wobble += dt * 3;
+    if (moveDown) e.y += 18;
+  });
+
+  // ── Enemy shoot ──
+  enemyShootTimer -= dt;
+  if (enemyShootTimer <= 0) {
+    enemyShootTimer = 0.9 + Math.random() * 0.6;
+    const shooters = alive;
+    if (shooters.length > 0) {
+      const s = shooters[Math.floor(Math.random() * shooters.length)];
+      bombs.push({ x: s.x + s.w/2, y: s.y + s.h, speed: 200 + Math.random() * 80 });
+    }
+  }
+
+  // ── Bombs ──
+  bombs.forEach(b => { b.y += b.speed * dt; });
+  bombs = bombs.filter(b => b.y < H);
+
+  // ── Collision: bullets vs enemies ──
+  bullets.forEach(b => {
+    enemies.forEach(e => {
+      if (!e.alive) return;
+      if (b.x > e.x && b.x < e.x + e.w && b.y > e.y && b.y < e.y + e.h) {
+        e.alive = false;
+        b.y = -999; // eliminar bala
+        score += e.name === 'JAN' ? 100 : 150;
+        explode(e.x + e.w/2, e.y + e.h/2, e.color);
+      }
+    });
+  });
+
+  // ── Collision: bombs vs player ──
+  bombs.forEach(b => {
+    if (b.x > player.x + 4 && b.x < player.x + player.w - 4 &&
+        b.y > player.y && b.y < player.y + player.h) {
+      b.y = H + 999;
+      lives--;
+      explode(player.x + player.w/2, player.y + player.h/2, '#0f0');
+      if (lives <= 0) { state = 'dead'; showGameOver(); }
+    }
+  });
+
+  // ── Enemies reaching player line ──
+  alive.forEach(e => {
+    if (e.y + e.h >= H - 32) {
+      lives = 0;
+      state = 'dead';
+      showGameOver();
+    }
+  });
+
+  // ── Particles ──
+  particles.forEach(p => {
+    p.x += p.vx * dt;
+    p.y += p.vy * dt;
+    p.life -= dt * 1.6;
+  });
+  particles = particles.filter(p => p.life > 0);
+
+  // ── Tiempo agotado → WIN ──
+  if (timeLeft <= 0) {
+    timeLeft = 0;
+    state = 'win';
+    showThanks();
+  }
+}
+
+// ── Render ────────────────────────────────────────────
+function render() {
+  ctx.fillStyle = COL_BG;
+  ctx.fillRect(0, 0, W, H);
+
+  // Estrellas de fondo
+  ctx.fillStyle = '#fff';
+  for (let i = 0; i < 60; i++) {
+    const sx = ((i * 137 + frameCount * 0.08) % W);
+    const sy = (i * 97) % H;
+    ctx.fillRect(sx, sy, 1, 1);
+  }
+
+  if (state === 'playing' || state === 'dead') {
+    enemies.forEach(drawEnemy);
+    drawParticles();
+    if (state === 'playing') {
+      drawPlayer();
+      bullets.forEach(drawBullet);
+      bombs.forEach(drawBomb);
+    }
+    drawHUD();
+  }
+}
+
+// ── Loop ──────────────────────────────────────────────
+function loop(ts) {
+  const dt = Math.min((ts - lastTime) / 1000, 0.05);
+  lastTime = ts;
+  update(dt);
+  render();
+  requestAnimationFrame(loop);
+}
+
+// ── UI ────────────────────────────────────────────────
+function showThanks() {
+  document.getElementById('thanks').style.display = 'flex';
+}
+function showGameOver() {
+  document.getElementById('gameover').style.display = 'flex';
+}
+
+function startGame() {
+  document.getElementById('overlay').style.display = 'none';
+  initGame();
+}
+function retryGame() {
+  document.getElementById('gameover').style.display = 'none';
+  initGame();
+}
+
+// ── Teclado ───────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  keys[e.code] = true;
+  keys[e.key]  = true;
+  if (['Space','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(e.code)) {
+    e.preventDefault();
+  }
+});
+document.addEventListener('keyup', e => {
+  keys[e.code] = false;
+  keys[e.key]  = false;
+});
+
+// ── Controles táctiles (móvil) ────────────────────────
+const leftBtn  = document.createElement('button');
+const rightBtn = document.createElement('button');
+const shootBtn = document.createElement('button');
+
+[leftBtn, rightBtn, shootBtn].forEach(b => {
+  b.style.cssText = `
+    position: fixed; bottom: 20px; padding: 16px 28px;
+    background: rgba(0,255,0,0.12); border: 2px solid #0f0;
+    color: #0f0; font-size: 22px; font-family: Courier New;
+    border-radius: 6px; z-index: 5; user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  `;
+});
+leftBtn.textContent  = '◀';
+rightBtn.textContent = '▶';
+shootBtn.textContent = '⚡';
+leftBtn.style.left   = '20px';
+rightBtn.style.left  = '100px';
+shootBtn.style.right = '20px';
+
+leftBtn.addEventListener('touchstart',  () => { keys['ArrowLeft']  = true; },  {passive:true});
+leftBtn.addEventListener('touchend',    () => { keys['ArrowLeft']  = false; }, {passive:true});
+rightBtn.addEventListener('touchstart', () => { keys['ArrowRight'] = true; },  {passive:true});
+rightBtn.addEventListener('touchend',   () => { keys['ArrowRight'] = false; }, {passive:true});
+shootBtn.addEventListener('touchstart', () => { keys['Space']      = true; },  {passive:true});
+shootBtn.addEventListener('touchend',   () => { keys['Space']      = false; }, {passive:true});
+
+// Mostrar botones solo si es táctil
+window.addEventListener('touchstart', () => {
+  document.body.appendChild(leftBtn);
+  document.body.appendChild(rightBtn);
+  document.body.appendChild(shootBtn);
+}, { once: true });
+
+// ── Arrancar loop ─────────────────────────────────────
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>

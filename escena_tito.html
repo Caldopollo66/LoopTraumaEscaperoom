@@ -5,7 +5,6 @@
   <title>Escena Tito - Escape Room</title>
   
   <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-
   <style>
     #inventario {
       position: absolute;
@@ -200,22 +199,21 @@
     });
 
     // ──────────── Componente: Baño ────────────
-    AFRAME.registerComponent('bano-clickable', {
-      init: function () {
-        this.el.addEventListener('click', () => {
-          alert("Has entrado al baño... 🚽\n¡Justo a tiempo!");
-          // Aquí puedes redirigir o lanzar la siguiente escena
-          // window.location.href = "bano.html";
-        });
-      }
-    });
+      AFRAME.registerComponent('bano-clickable', {
+        init: function () {
+          this.el.addEventListener('click', () => {
+            alert("Has entrado al baño... 🚽\n¡Justo a tiempo!");
+            window.location.href = "creditos.html";
+          });
+        }
+      });
 
     // ──────────── Next level ────────────
     document.addEventListener('DOMContentLoaded', () => {
       const nextLevelObjects = document.querySelectorAll('.next-level');
       nextLevelObjects.forEach(object => {
         object.addEventListener('click', function () {
-          window.location.href = "intro.html";
+          window.location.href = "creditos.html";
         });
       });
     });
@@ -326,14 +324,14 @@
 
     <!-- Baño (clickable) -->
     <a-entity
-      id="bano"
-      gltf-model="#baño"
-      class="interactuable"
-      bano-clickable
-      position="124.27 -3.945 60.53"
-      scale="10 10 10"
-      static-body>
-    </a-entity>
+  id="bano"
+  gltf-model="#baño"
+  class="interactuable"
+  bano-clickable
+  position="124.27 -3.945 60.53"
+  scale="10 10 10"
+  static-body>
+</a-entity>
 
   </a-scene>
 </body>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Escape Room - Walter & Portal</title>
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <script src="https://agarci9inscastellet.github.io/scaperoom/js/scaperoom.js"></script>
+  </head>
+  <body>
+    <a-scene background="color: black" cursor="rayOrigin: mouse">
+
+      <a-assets>
+        <a-asset-item id="cueva" src="modelos/cueva.glb"></a-asset-item>
+        <a-asset-item id="w" src="modelos/walter.glb"></a-asset-item>
+        <a-asset-item id="portal" src="modelos/portal.glb"></a-asset-item>
+      </a-assets>
+
+      <a-entity
+        id="player"
+        position="3.443 1.092 17.764" 
+        wasd-controls="acceleration: 20" 
+        look-controls>
+        <a-entity camera>
+          <a-cursor 
+            id="cursor"
+            color="red"
+            raycaster="objects: .interactable">
+          </a-cursor>
+        </a-entity>
+      </a-entity>
+
+      <a-light type="ambient" intensity="0.7"></a-light>
+      <a-light type="directional" position="1 2 1" intensity="0.5"></a-light>
+
+      <a-entity id="cueva1" gltf-model="#cueva" position="1.018 0 10.784" rotation="0 180 0" scale="0.001 0.001 0.001"></a-entity> 
+      <a-entity id="cueva2" gltf-model="#cueva" position="10.566 0 -5.799" rotation="0 0 0" scale="0.001 0.001 0.001"></a-entity>
+      <a-entity id="cueva3" gltf-model="#cueva" position="8.348 0 9.856" rotation="0 0 0" scale="0.001 0.001 0.001"></a-entity>
+      <a-entity id="cueva4" gltf-model="#cueva" position="3.290 -0.009 -4.872" rotation="0 180 0" scale="0.001 0.001 0.001"></a-entity>
+
+      <a-entity 
+        id="walter"
+        class="interactable"
+        gltf-model="#w" 
+        position="7.492 0.762 -6.026"
+        rotation="270 0 0" 
+        scale="1 1 1"
+        onclick="hablarConWalter()">
+      </a-entity> 
+
+      <a-entity 
+        id="portalEntity"
+        class="interactable"
+        gltf-model="#portal" 
+        position="7.946 0 -13.718" 
+        scale="1 1 1"
+        onclick="usarPortal()">
+      </a-entity>
+
+    </a-scene>
+
+    <script>
+      let tieneLlave = false;
+
+      function hablarConWalter() {
+        if (tieneLlave) {
+          alert("Walter: ¡Date prisa, cruza el portal!");
+          return;
+        }
+
+        let mensaje = "Walter: Me he quedado atrapado entre las piedras y no puedo salir de aquí, por favor sal tú con esta llave, pero antes respóndeme a esta pregunta (la mas larga siempre):\n\n" +
+                      "¿Cuál es la derivada de f(x) = x^x?\n" +
+                      "A) x^x * ln(x)\n" +
+                      "B) x^x * (1 + ln(x))\n" +
+                      "C) x^(x-1)\n" +
+                      "D) e^x * x";
+        
+        let respuesta = prompt(mensaje);
+
+        // AHORA LA RESPUESTA CORRECTA ES LA B
+        if (respuesta && respuesta.toUpperCase() === "B") {
+          alert("Walter: ¡Correcto! Toma la llave. Ahora puedes usar el portal.");
+          tieneLlave = true;
+        } else if (respuesta !== null) {
+          alert("Walter: No... esa no es la respuesta. Piénsalo bien.");
+        }
+      }
+
+      function usarPortal() {
+        if (tieneLlave) {
+          alert("¡Usando la llave! Viajando a la siguiente escena...");
+          window.location.href = "escena_tito.html";
+        } else {
+          alert("El portal está bloqueado. Necesitas la llave de Walter para pasar.");
+        }
+      }
+    </script>
+  </body>
+</html>
