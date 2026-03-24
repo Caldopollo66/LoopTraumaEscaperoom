@@ -88,7 +88,7 @@
 
 <a-assets>
   <img id="fons" src="IMG/lonod.jpg">
-  <audio id="musicaGwyndolin" src="musica/Dark Sun Gwyndolin.mp3" preload="auto"></audio>
+  <audio id="musicaGwyndolin" src="musica/Dark_Sun_Gwyndolin.mp3" preload="auto"></audio>
   <a-asset-item id="londo" src="modelos/anor_londo.glb"></a-asset-item>
   <a-asset-item id="bossModel" src="modelos/boos.glb"></a-asset-item>
 </a-assets>
@@ -106,7 +106,7 @@
 
   <a-entity id="player" position="0 0 7">
     <a-camera id="mainCam" wasd-controls="acceleration: 80" look-controls="pointerLockEnabled: true">
-      <a-entity id="sonidoFondo" sound="src: #musicaGwyndolin; autoplay: true; loop: true; volume: 3; positional: false"></a-entity>
+      <a-entity id="sonidoFondo" sound="src: #musicaGwyndolin; autoplay: true; loop: true; volume: 1; positional: false"></a-entity>
       <a-cursor color="#d4af37"></a-cursor>
     </a-camera>
   </a-entity>
@@ -192,6 +192,20 @@
       }, 1000);
     }
   });
+ function startGame() {
+    // El clic directo del usuario desbloquea el autoplay del navegador
+    musica.play().catch(e => console.warn('Audio error:', e));
+    document.getElementById('startScreen').style.display = 'none';
+
+    setTimeout(() => {
+      document.getElementById('boss-banner').classList.add('visible');
+      setTimeout(() => document.getElementById('boss-banner').classList.remove('visible'), 3000);
+    }, 500);
+  }
+
+
+
+
 
   AFRAME.registerComponent('bullet-move', {
     schema: { vx: { type: 'number' }, vz: { type: 'number' } },
