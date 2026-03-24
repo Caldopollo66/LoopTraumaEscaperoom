@@ -244,11 +244,12 @@
       <a-asset-item id="cart"     src="modelos/cart.glb"></a-asset-item>
       <a-asset-item id="gustabo"  src="modelos/gustabo.glb"></a-asset-item>
       <a-asset-item id="kebab"    src="modelos/kebab.glb"></a-asset-item>
+      <a-asset-item id="dinosaur"    src="modelos/dinosaur.glb"></a-asset-item>
     </a-assets>
 
     <!-- Jugador -->
     <a-entity id="player" position="0.050 1.6 5" rotation="0 0 0">
-      <a-camera wasd-controls="acceleration: 20" look-controls>
+      <a-camera wasd-controls="acceleration: 100" look-controls>
         <a-cursor 
           color="red" 
           raycaster="objects: .interactuable">
@@ -301,6 +302,17 @@
       class="interactuable"
       gustabo-tienda
       position="164 -3.838 81.779" 
+      rotation="0 90 0"
+      scale="5 5 5"
+      static-body>
+    </a-entity> 
+
+     <a-entity
+      id="dinosaur"
+      gltf-model="#dinosaur"
+      class="interactuable"
+      gustabo-tienda
+      position="164 -3.838 96" 
       rotation="0 90 0"
       scale="5 5 5"
       static-body>
